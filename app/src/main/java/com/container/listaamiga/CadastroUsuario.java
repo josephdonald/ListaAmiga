@@ -155,16 +155,16 @@ public class CadastroUsuario extends AppCompatActivity {
     /**
      * CADASTRA CONTA DE USUÁRIO
      * **/
-    private void cadastrarConta(String usuario, String senha){
+    private void cadastrarConta(String email, String senha){
 
-        final String usuarioRecebido = usuario;
+        final String emailRecebido = email;
         final String senhaRecebida = senha;
 
-        Log.i("verificaDados", "Usuario: " + usuarioRecebido + " - Senha: " + senhaRecebida);
+        Log.i("verificaDados", "Usuario: " + emailRecebido + " - Senha: " + senhaRecebida);
 
         try{
 
-            criarContaUsuario.createUserWithEmailAndPassword(usuarioRecebido, senhaRecebida).addOnCompleteListener(CadastroUsuario.this, new OnCompleteListener<AuthResult>() {
+            criarContaUsuario.createUserWithEmailAndPassword(emailRecebido, senhaRecebida).addOnCompleteListener(CadastroUsuario.this, new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
 
@@ -196,7 +196,7 @@ public class CadastroUsuario extends AppCompatActivity {
                         Intent intentTelaPrincipal = new Intent(CadastroUsuario.this, Login.class);
                         startActivity(intentTelaPrincipal);
 
-                        Toast.makeText(CadastroUsuario.this, "Usuário " + usuarioRecebido + " cadastrado com sucesso.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CadastroUsuario.this, "Usuário " + emailRecebido + " cadastrado com sucesso.", Toast.LENGTH_SHORT).show();
 
                     }
 

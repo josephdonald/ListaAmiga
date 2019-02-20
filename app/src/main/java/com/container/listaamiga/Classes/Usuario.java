@@ -2,17 +2,17 @@ package com.container.listaamiga.Classes;
 
 public class Usuario {
 
-    private String usuario, senha;
+    private String email, senha;
 
     public Usuario() {
     }
 
     public String getUsuario() {
-        return usuario;
+        return email;
     }
 
     public void setUsuario(String usuario) {
-        this.usuario = usuario;
+        this.email = usuario;
     }
 
     public String getSenha() {
