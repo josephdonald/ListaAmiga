@@ -26,7 +26,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <AutoCompleteTextView
-        android:id="@+id/edt_login_lista"
+        android:id="@+id/edt_login_tela"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -38,7 +38,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <EditText
-        android:id="@+id/edt_senha_lista"
+        android:id="@+id/edt_senha_tela"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -51,10 +51,10 @@
         android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edt_login_lista" />
+        app:layout_constraintTop_toBottomOf="@+id/edt_login_tela" />
 
     <Button
-        android:id="@+id/btn_logar"
+        android:id="@+id/btn_logar_tela"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -65,10 +65,10 @@
         android:text="entrar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/edt_senha_lista" />
+        app:layout_constraintTop_toBottomOf="@+id/edt_senha_tela" />
 
     <TextView
-        android:id="@+id/txt_cadastro"
+        android:id="@+id/txt_cadastro_tela"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -79,5 +79,5 @@
         android:text="Não é cadastrado? Clique aqui."
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_logar" />
+        app:layout_constraintTop_toBottomOf="@+id/btn_logar_tela" />
 </android.support.constraint.ConstraintLayout>
