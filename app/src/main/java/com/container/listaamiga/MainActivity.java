@@ -1,8 +1,10 @@
 package com.container.listaamiga;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -12,9 +14,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private FirebaseAuth firebaseAuth;
+    private TextView emailTeste;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +31,21 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        firebaseAuth = FirebaseAuth.getInstance();
+
+        try{
+
+            emailTeste = findViewById(R.id.txt_email);
+
+            String email = firebaseAuth.getCurrentUser().getEmail();
+
+            emailTeste.setText( email );
+
+        } catch (Exception e){
+            Log.i("testeLogin", e.getMessage() );
+        }
+
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -66,12 +90,12 @@ public class MainActivity extends AppCompatActivity
         // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()){
 
-            case R.id.logout:
+            case R.id.action_logout:
                 //DESLOGAR USUARIO
-//                deslogarUsuario();
+                deslogarUsuario();
                 return true;
 
-            case R.id.action_settings:
+            case R.id.action_configuracoes:
                 //CADASTRAR FUNCIONARIO
 //                cadastroFuncionario();
                 return true;
@@ -105,4 +129,27 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    /**
+     * ############## MÉTODOS ###############
+     * **/
+
+    /**
+     * LOGOUT DO USUÁRIO
+     * **/
+    private void deslogarUsuario(){
+
+        firebaseAuth = FirebaseAuth.getInstance();
+
+        firebaseAuth.signOut();
+
+        Toast.makeText(this, "Logout feito com sucesso.", Toast.LENGTH_LONG).show();
+
+        Intent intentLogout = new Intent(MainActivity.this, Login.class);
+        startActivity( intentLogout );
+        finish();
+
+    }
+
+
 }

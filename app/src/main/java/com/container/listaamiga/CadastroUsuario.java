@@ -19,6 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -162,7 +163,10 @@ public class CadastroUsuario extends AppCompatActivity {
 
         Log.i("verificaDados", "Usuario: " + emailRecebido + " - Senha: " + senhaRecebida);
 
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+
         try{
+
 
             criarContaUsuario.createUserWithEmailAndPassword(emailRecebido, senhaRecebida).addOnCompleteListener(CadastroUsuario.this, new OnCompleteListener<AuthResult>() {
                 @Override
