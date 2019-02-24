@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutionException;
 public class Login extends AppCompatActivity {
 
     private TextView textCadastro;
+    private TextView textRedefSenha;
     private EditText edtLogin;
     private EditText edtSenha;
     private Button btnLogar;
@@ -62,7 +63,7 @@ public class Login extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         /** VERIFICA SE HÁ USUÁRIO LOGADO **/
-        verificaUsuarioLogado();
+//        verificaUsuarioLogado();
 
 
         /** OBTENDO A INSTANCIA DO FIREBASE**/
@@ -72,6 +73,7 @@ public class Login extends AppCompatActivity {
         edtSenha = findViewById(R.id.edt_senha_tela);
         btnLogar = findViewById(R.id.btn_logar_tela);
         textCadastro = findViewById(R.id.txt_cadastro_tela);
+        textRedefSenha = findViewById(R.id.txt_redef_senha);
 
 
         /**
@@ -96,8 +98,6 @@ public class Login extends AppCompatActivity {
             }
         });
 
-        /**-----------------------------------------------**/
-
         /**
          * LINK PARA ABRIR TELA DE CADASTRO
          * **/
@@ -108,6 +108,19 @@ public class Login extends AppCompatActivity {
                 Intent intentCadastro = new Intent(Login.this, CadastroUsuario.class);
 
                 startActivity( intentCadastro );
+
+            }
+        });
+
+        /**
+         * LINK PARA REDEFINIÇÃO DE SENHA
+         * **/
+        textRedefSenha.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Intent intentRedefSenha = new Intent( Login.this, RedefinirSenha.class );
+                startActivity( intentRedefSenha );
 
             }
         });

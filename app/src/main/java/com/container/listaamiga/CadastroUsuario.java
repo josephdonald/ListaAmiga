@@ -14,6 +14,7 @@ import com.container.listaamiga.Classes.Usuario;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
+import com.google.firebase.auth.ActionCodeSettings;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
@@ -29,8 +30,9 @@ public class CadastroUsuario extends AppCompatActivity {
     private Button btnCadastrar;
     private Usuario usuario = new Usuario();
     private DatabaseReference databaseReference  = FirebaseDatabase.getInstance().getReference();
-    private FirebaseAuth criarContaUsuario = FirebaseAuth.getInstance();
+    private FirebaseAuth autenticacaoContaUsuario = FirebaseAuth.getInstance();
     private String emailCadastrado, senhaCadastrada, confirmSenhaCadastrada;
+    private FirebaseUser contaUsuario;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +52,7 @@ public class CadastroUsuario extends AppCompatActivity {
 //                senhaCadastrada = txtSenhaCad.getText().toString();
 //                confirmSenhaCadastrada = txtConfirmaSenhaCad.getText().toString();
 
-                emailCadastrado = "teste@teste.com";
+                emailCadastrado = "applistaamiga@gmail.com";
                 senhaCadastrada = "123456";
                 confirmSenhaCadastrada = "123456";
 
@@ -59,7 +61,9 @@ public class CadastroUsuario extends AppCompatActivity {
                     cadastrarConta(usuario.getUsuario(), usuario.getSenha());
 
                 } else {
+
                     Log.i("verificaDados", "ERRO!!");
+
                 }
 
             }
@@ -163,12 +167,9 @@ public class CadastroUsuario extends AppCompatActivity {
 
         Log.i("verificaDados", "Usuario: " + emailRecebido + " - Senha: " + senhaRecebida);
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
         try{
 
-
-            criarContaUsuario.createUserWithEmailAndPassword(emailRecebido, senhaRecebida).addOnCompleteListener(CadastroUsuario.this, new OnCompleteListener<AuthResult>() {
+            autenticacaoContaUsuario.createUserWithEmailAndPassword(emailRecebido, senhaRecebida).addOnCompleteListener(CadastroUsuario.this, new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
 
@@ -194,13 +195,15 @@ public class CadastroUsuario extends AppCompatActivity {
 
                     } else {
 
-//                        Toast.makeText(CadastroUsuario.this, "Erro ao cadastrar o usuário " + usuarioRecebido + ". Erro: " + task.getException(), Toast.LENGTH_SHORT).show();
-//                        Log.i("verificaDados", "Erro: " + task.getException() );
+                        contaUsuario = autenticacaoContaUsuario.getCurrentUser();
+
                         //APÓS O CADASTRO RETORNA PARA A PÁGINA DE LOGIN
                         Intent intentTelaPrincipal = new Intent(CadastroUsuario.this, Login.class);
                         startActivity(intentTelaPrincipal);
 
                         Toast.makeText(CadastroUsuario.this, "Usuário " + emailRecebido + " cadastrado com sucesso.", Toast.LENGTH_SHORT).show();
+
+                        enviarVerificacaoEmail( contaUsuario );
 
                     }
 
@@ -216,4 +219,75 @@ public class CadastroUsuario extends AppCompatActivity {
 
     }
 
+    private void enviarVerificacaoEmail(FirebaseUser contaUsuarioExterno){
+
+        FirebaseUser contaUsuarioInterno = contaUsuarioExterno;
+
+        Log.i("testeEmail", "E-mail de verificação enviado." );
+
+        try{
+
+            contaUsuarioInterno.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+
+                    Log.i("testeEmail", "E-mail de verificação enviado. DENTRO DA TASK" );
+                    Toast.makeText(CadastroUsuario.this, "E-mail de verificação enviado.", Toast.LENGTH_LONG).show();
+
+                }
+            });
+
+        } catch (Exception e){
+
+            Toast.makeText(this, "Erro ao enviar o e-mail de verificação.", Toast.LENGTH_SHORT).show();
+            Log.i("testeEmail", "Erro ao enviar o e-mail de verificação: " + e.getMessage() );
+
+        }
+
+
+    }
+
 }
+
+
+/** AUTENTICAÇÃO POR E-MAIL (SEM SENHA) **/
+
+//try{
+//
+//        FirebaseAuth autenticacao = FirebaseAuth.getInstance();
+//        FirebaseUser usuario = autenticacao.getCurrentUser();
+////            String url = "http://www.example.com/verify?uid=" + usuario.getUid();
+//
+//        //ENVIAR E-MAIL DE AUTENTICACAO
+//        ActionCodeSettings actionCodeSettings = ActionCodeSettings.newBuilder()
+//        .setUrl( "https://www.example.com/finishSignUp?cartId=1234" )
+//        .setHandleCodeInApp(true)
+//        .setAndroidPackageName("com.container.listaamiga", true, "12")
+//        .build();
+//
+//        //ENVIO DO LINK
+//        autenticacao.sendSignInLinkToEmail(emailRecebido, actionCodeSettings).addOnCompleteListener(new OnCompleteListener<Void>() {
+//@Override
+//public void onComplete(@NonNull Task<Void> task) {
+//
+//        if(task.isSuccessful()){
+//
+//        Toast.makeText(CadastroUsuario.this, "E-mail para ativação da conta enviado para " + emailRecebido, Toast.LENGTH_LONG).show();
+//        Log.i("testeEmail", "E-mail enviado!");
+//
+//        } else {
+//
+//        Log.i("testeEmail", "Falha no envio do e-mail." + task.getException() );
+//
+//        }
+//
+//        }
+//        });
+//
+//
+//        } catch (Exception e){
+//
+//        Toast.makeText(CadastroUsuario.this, "Erro na autenticação " + e.getMessage(), Toast.LENGTH_LONG).show();
+//        Log.i("testeEmail", "Erro na autenticação " + e.getMessage());
+//
+//        }
