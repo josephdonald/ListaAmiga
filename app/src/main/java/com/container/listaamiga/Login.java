@@ -22,12 +22,14 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
+import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.internal.api.FirebaseNoSignedInUserException;
 
 import java.util.Arrays;
@@ -170,7 +172,8 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
             try{
 
                 GoogleSignInAccount contaGoogle = taskGoogle.getResult(ApiException.class);
-                startActivity(new Intent(getBaseContext(), MainActivity.class));
+                autenticarFirebaseComGoogle( contaGoogle );
+//                startActivity(new Intent(getBaseContext(), MainActivity.class));
 
             } catch (ApiException e){
 
@@ -186,6 +189,30 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
         }
 
     }
+
+    /** AUTENTICAR CONTA GOOGLE NO FIREBASE **/
+    private void autenticarFirebaseComGoogle(GoogleSignInAccount contaGoogle){
+        Log.i( "IDFirebase","firebaseAuthWithGoogle:" + contaGoogle.getId());
+
+        AuthCredential credenciais = GoogleAuthProvider.getCredential(contaGoogle.getIdToken(), null);
+        firebaseAuth.signInWithCredential(credenciais)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+
+                        if (task.isSuccessful()){
+
+                            Toast.makeText(Login.this, "Usuário logado com conta do Google.", Toast.LENGTH_LONG).show();
+                            startActivity(new Intent(getBaseContext(), MainActivity.class));
+
+                        } else {
+                            Toast.makeText(Login.this, "Erro ao logar o usuário pelo Google", Toast.LENGTH_LONG).show();
+                        }
+
+                    }
+                });
+    }
+
 
     /** METODO PARA LOGIN PELO GOOGLE **/
     private void servicosGoogle(){
