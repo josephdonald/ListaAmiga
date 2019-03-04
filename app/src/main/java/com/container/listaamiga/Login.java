@@ -2,6 +2,7 @@ package com.container.listaamiga;
 
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -12,6 +13,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
@@ -27,7 +34,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class Login extends AppCompatActivity {
+public class Login extends AppCompatActivity implements View.OnClickListener{
 
     private TextView textCadastro;
     private TextView textRedefSenha;
@@ -37,25 +44,11 @@ public class Login extends AppCompatActivity {
 
     private String login, senha;
 
+    //BOTAO PARA LOGIN COM O GOOGLE
+    private SignInButton btnLoginGoogle;
+    private GoogleSignInClient loginGoogle;
+
     private FirebaseAuth firebaseAuth;
-
-//    /**
-//     * LISTA DE OPCOES PARA LOGIN
-//     * **/
-//    List<AuthUI.IdpConfig> modosLogins = Arrays.asList(
-//
-//            new AuthUI.IdpConfig.EmailBuilder().build()
-//    );
-
-//
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//
-//        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
-//
-//
-//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +58,10 @@ public class Login extends AppCompatActivity {
         /** VERIFICA SE HÁ USUÁRIO LOGADO **/
 //        verificaUsuarioLogado();
 
+        /** INICIALIZA O SERVIÇO DE CONTA DO GOOGLE **/
+        servicosGoogle();
 
-        /** OBTENDO A INSTANCIA DO FIREBASE**/
+        /** OBTENDO A INSTANCIA DO FIREBASE **/
         firebaseAuth = FirebaseAuth.getInstance();
 
         edtLogin = findViewById(R.id.edt_login_tela);
@@ -75,15 +70,63 @@ public class Login extends AppCompatActivity {
         textCadastro = findViewById(R.id.txt_cadastro_tela);
         textRedefSenha = findViewById(R.id.txt_redef_senha);
 
+        /** BOTAO DE LOGIN DO GOOGLE **/
+        btnLoginGoogle = findViewById(R.id.id_login_google);
 
         /**
-         * BOTAO PARA LOGAR NO APP
+         * ATIVA CLICK DOS BUTTONS E TEXTS
          * **/
-        btnLogar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        //BOTAO PARA LOGAR NO APP POR EMAIL
+        btnLogar.setOnClickListener(this);
 
-                try {
+        //LINK PARA ABRIR TELA DE CADASTRO
+        textCadastro.setOnClickListener(this);
+
+        //LINK PARA REDEFINIÇÃO DE SENHA
+        textRedefSenha.setOnClickListener(this);
+
+        //LINK PARA LOGIN COM A CONTA DO GOOGLE
+        btnLoginGoogle.setOnClickListener(this);
+
+    }
+
+    @Override
+    public void onClick (View view){
+
+        switch (view.getId()){
+
+            case R.id.btn_logar_tela:
+
+                logarContaEmail();
+
+                break;
+
+            case R.id.id_login_google:
+
+                logarContaGoogle();
+
+                break;
+
+            case R.id.txt_cadastro_tela:
+
+                startActivity( new Intent(getBaseContext(), CadastroUsuario.class) );
+
+                break;
+
+            case R.id.txt_redef_senha:
+
+                startActivity(new Intent(getBaseContext(), RedefinirSenha.class));
+
+                break;
+
+        }
+
+    }
+
+    /** LOGAR CONTA EMAIL **/
+    private void logarContaEmail(){
+
+        try {
                     login = edtLogin.getText().toString();
                     senha = edtSenha.getText().toString();
 
@@ -95,37 +138,67 @@ public class Login extends AppCompatActivity {
                     Log.i("testeLogin", "Erro no login: " + e.getMessage() );
                 }
 
-            }
-        });
+    }
 
-        /**
-         * LINK PARA ABRIR TELA DE CADASTRO
-         * **/
-        textCadastro.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+    /** LOGAR CONTA GOOGLE **/
+    private void logarContaGoogle(){
 
-                Intent intentCadastro = new Intent(Login.this, CadastroUsuario.class);
+        GoogleSignInAccount contaGoogle = GoogleSignIn.getLastSignedInAccount(this);
 
-                startActivity( intentCadastro );
+        if (contaGoogle == null){
 
-            }
-        });
+            Intent intentGoogle = loginGoogle.getSignInIntent();
+            startActivityForResult(intentGoogle, 555);
 
-        /**
-         * LINK PARA REDEFINIÇÃO DE SENHA
-         * **/
-        textRedefSenha.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        } else {
 
-                Intent intentRedefSenha = new Intent( Login.this, RedefinirSenha.class );
-                startActivity( intentRedefSenha );
+            //CASO EXISTA OUTRA CONTA DO GOOGLE LOGADA
+            Toast.makeText(this, "Já há um usuário logado.", Toast.LENGTH_LONG).show();
 
-            }
-        });
+        }
 
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 555){
+
+            Task<GoogleSignInAccount> taskGoogle = GoogleSignIn.getSignedInAccountFromIntent(data);
+
+            try{
+
+                GoogleSignInAccount contaGoogle = taskGoogle.getResult(ApiException.class);
+                startActivity(new Intent(getBaseContext(), MainActivity.class));
+
+            } catch (ApiException e){
+
+                Toast.makeText(this, "Erro no sign: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Log.i("errosign", "Erro: " + e.getMessage());
+
+            }
+
+        } else {
+
+            Toast.makeText(this, "O REQUEST CODE não confere!", Toast.LENGTH_SHORT).show();
+
+        }
+
+    }
+
+    /** METODO PARA LOGIN PELO GOOGLE **/
+    private void servicosGoogle(){
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        loginGoogle = GoogleSignIn.getClient(this, gso);
+
+    }
+
 
     /**
      * MÉTODO PARA LOGIN DO USUÁRIO
