@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "1043213507499-no1jeht4qc64hnj4idq8g7tljdi8av1s.apps.googleusercontent.com",
+          "client_id": "1043213507499-egrlq3obus3dcs8n6mmbj3t2f6lkqlh9.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.container.listaamiga",
-            "certificate_hash": "ca8b0c083920ae6da88421bd86f243ec036e59b3"
+            "certificate_hash": "ef1e70600150c21e2724fac8bc82e80b81f3ec38"
           }
         },
         {

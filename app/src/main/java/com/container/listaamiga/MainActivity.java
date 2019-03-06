@@ -1,5 +1,6 @@
 package com.container.listaamiga;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -17,6 +18,10 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class MainActivity extends AppCompatActivity
@@ -24,6 +29,7 @@ public class MainActivity extends AppCompatActivity
 
     private FirebaseAuth firebaseAuth;
     private TextView emailTeste;
+    private GoogleSignInClient loginGoogle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,11 +143,19 @@ public class MainActivity extends AppCompatActivity
     /**
      * LOGOUT DO USUÁRIO
      * **/
-    private void deslogarUsuario(){
+    private void deslogarUsuario( ){
 
-        firebaseAuth = FirebaseAuth.getInstance();
+        //DESLOGA O USUARIO DO E-MAIL
+        firebaseAuth.getInstance().signOut();
 
-        firebaseAuth.signOut();
+        //DESLOGA DA CONTA DO GOOGLE
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        loginGoogle = GoogleSignIn.getClient(this, gso);
+        loginGoogle.signOut();
 
         Toast.makeText(this, "Logout feito com sucesso.", Toast.LENGTH_LONG).show();
 

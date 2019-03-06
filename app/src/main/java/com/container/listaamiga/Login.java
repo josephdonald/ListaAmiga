@@ -1,5 +1,6 @@
 package com.container.listaamiga;
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -38,16 +39,11 @@ import java.util.concurrent.ExecutionException;
 
 public class Login extends AppCompatActivity implements View.OnClickListener{
 
-    private TextView textCadastro;
-    private TextView textRedefSenha;
     private EditText edtLogin;
     private EditText edtSenha;
-    private Button btnLogar;
 
     private String login, senha;
 
-    //BOTAO PARA LOGIN COM O GOOGLE
-    private SignInButton btnLoginGoogle;
     private GoogleSignInClient loginGoogle;
 
     private FirebaseAuth firebaseAuth;
@@ -58,7 +54,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
         setContentView(R.layout.activity_login);
 
         /** VERIFICA SE HÁ USUÁRIO LOGADO **/
-//        verificaUsuarioLogado();
+        verificaUsuarioLogado();
 
         /** INICIALIZA O SERVIÇO DE CONTA DO GOOGLE **/
         servicosGoogle();
@@ -66,29 +62,25 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
         /** OBTENDO A INSTANCIA DO FIREBASE **/
         firebaseAuth = FirebaseAuth.getInstance();
 
+        /** EDIT TEXT DE LOGIN E SENHA **/
         edtLogin = findViewById(R.id.edt_login_tela);
         edtSenha = findViewById(R.id.edt_senha_tela);
-        btnLogar = findViewById(R.id.btn_logar_tela);
-        textCadastro = findViewById(R.id.txt_cadastro_tela);
-        textRedefSenha = findViewById(R.id.txt_redef_senha);
 
-        /** BOTAO DE LOGIN DO GOOGLE **/
-        btnLoginGoogle = findViewById(R.id.id_login_google);
 
         /**
          * ATIVA CLICK DOS BUTTONS E TEXTS
          * **/
         //BOTAO PARA LOGAR NO APP POR EMAIL
-        btnLogar.setOnClickListener(this);
+        findViewById(R.id.btn_logar_tela).setOnClickListener(this);
+
+        //BOTAO DE LOGIN DO GOOGLE
+        findViewById(R.id.id_login_google).setOnClickListener(this);
 
         //LINK PARA ABRIR TELA DE CADASTRO
-        textCadastro.setOnClickListener(this);
+        findViewById(R.id.txt_cadastro_tela).setOnClickListener(this);
 
         //LINK PARA REDEFINIÇÃO DE SENHA
-        textRedefSenha.setOnClickListener(this);
-
-        //LINK PARA LOGIN COM A CONTA DO GOOGLE
-        btnLoginGoogle.setOnClickListener(this);
+        findViewById(R.id.txt_redef_senha).setOnClickListener(this);
 
     }
 
@@ -143,7 +135,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
     }
 
     /** LOGAR CONTA GOOGLE **/
-    private void logarContaGoogle(){
+    protected void logarContaGoogle(){
 
         GoogleSignInAccount contaGoogle = GoogleSignIn.getLastSignedInAccount(this);
 
@@ -156,6 +148,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
             //CASO EXISTA OUTRA CONTA DO GOOGLE LOGADA
             Toast.makeText(this, "Já há um usuário logado.", Toast.LENGTH_LONG).show();
+            loginGoogle.signOut();
 
         }
 
@@ -167,17 +160,16 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
         if (requestCode == 555){
 
-            Task<GoogleSignInAccount> taskGoogle = GoogleSignIn.getSignedInAccountFromIntent(data);
-
             try{
+                Task<GoogleSignInAccount> taskGoogle = GoogleSignIn.getSignedInAccountFromIntent(data);
 
-                GoogleSignInAccount contaGoogle = taskGoogle.getResult(ApiException.class);
+                GoogleSignInAccount contaGoogle = taskGoogle.getResult();
                 autenticarFirebaseComGoogle( contaGoogle );
 //                startActivity(new Intent(getBaseContext(), MainActivity.class));
 
-            } catch (ApiException e){
+            } catch (Exception e){
 
-                Toast.makeText(this, "Erro no sign: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Erro no sign: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 Log.i("errosign", "Erro: " + e.getMessage());
 
             }
@@ -190,8 +182,8 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
     }
 
-    /** AUTENTICAR CONTA GOOGLE NO FIREBASE **/
-    private void autenticarFirebaseComGoogle(GoogleSignInAccount contaGoogle){
+    /** AUTENTICAR CONTA GOOGLE NO FIREBASE CRIANDO O USUÁRIO**/
+    private void autenticarFirebaseComGoogle(final GoogleSignInAccount contaGoogle){
         Log.i( "IDFirebase","firebaseAuthWithGoogle:" + contaGoogle.getId());
 
         AuthCredential credenciais = GoogleAuthProvider.getCredential(contaGoogle.getIdToken(), null);
@@ -204,6 +196,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
                             Toast.makeText(Login.this, "Usuário logado com conta do Google.", Toast.LENGTH_LONG).show();
                             startActivity(new Intent(getBaseContext(), MainActivity.class));
+                            finish();
 
                         } else {
                             Toast.makeText(Login.this, "Erro ao logar o usuário pelo Google", Toast.LENGTH_LONG).show();
@@ -280,18 +273,22 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
     /** MÉTODO QUE ABRE A TELA PRINCIPAL **/
     private void abrirMainActivity(){
-        Intent intentLogin = new Intent(Login.this, MainActivity.class);
-        startActivity(intentLogin);
 
+        startActivity(new Intent(this, MainActivity.class));
         finish();
+
     }
 
     /** MÉTODO QUE VERIFICA SE HÁ USUÁRIOS LOGADOS **/
     private void verificaUsuarioLogado(){
+
         firebaseAuth = FirebaseAuth.getInstance();
+
         if (firebaseAuth.getCurrentUser() != null){
             abrirMainActivity();
         }
     }
 
+    public Login() {
+    }
 }
