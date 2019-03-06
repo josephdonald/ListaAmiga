@@ -38,19 +38,11 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //OBTEM INTANCIA DO USUARIO AUTENTICADO
         firebaseAuth = FirebaseAuth.getInstance();
 
-        try{
-
-            emailTeste = findViewById(R.id.txt_email);
-
-            String email = firebaseAuth.getCurrentUser().getEmail();
-
-            emailTeste.setText( email );
-
-        } catch (Exception e){
-            Log.i("testeLogin", e.getMessage() );
-        }
+        //METODO PARA PERSONALIZAR O APP DE ACORDO COM O USUARIO
+        personalizaAppUsuario();
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -140,9 +132,24 @@ public class MainActivity extends AppCompatActivity
      * ############## MÉTODOS ###############
      * **/
 
-    /**
-     * LOGOUT DO USUÁRIO
-     * **/
+    /** RECEBER DADOS DO USUÁRIO LOGADO **/
+    private void personalizaAppUsuario(){
+        try{
+
+            emailTeste = findViewById(R.id.txt_email);
+
+            String email = firebaseAuth.getCurrentUser().getEmail();
+
+            emailTeste.setText( email );
+
+        } catch (Exception e){
+            Log.i("testeLogin", e.getMessage() );
+        }
+
+    }
+
+
+    /** LOGOUT DO USUÁRIO **/
     private void deslogarUsuario( ){
 
         //DESLOGA O USUARIO DO E-MAIL
