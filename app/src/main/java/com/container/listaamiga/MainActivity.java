@@ -155,6 +155,7 @@ public class MainActivity extends AppCompatActivity
                 .build();
 
         loginGoogle = GoogleSignIn.getClient(this, gso);
+
         loginGoogle.signOut();
 
         Toast.makeText(this, "Logout feito com sucesso.", Toast.LENGTH_LONG).show();
