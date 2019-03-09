@@ -18,6 +18,8 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.login.LoginManager;
+import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -154,6 +156,10 @@ public class MainActivity extends AppCompatActivity
 
         //DESLOGA O USUARIO DO E-MAIL
         firebaseAuth.getInstance().signOut();
+
+        //DESLOGAR O USUARIO DO FACEBOOK
+        LoginManager.getInstance().logOut();
+
 
         //DESLOGA DA CONTA DO GOOGLE
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)

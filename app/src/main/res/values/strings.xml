@@ -8,4 +8,9 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_configuracoes">Configurações</string>
     <string name="action_logout">Logout</string>
+
+    <!--STRINGS DO LOGIN PELO FACEBOOK-->
+    <string name="facebook_app_id">459563224580080</string>
+    <string name="fb_login_protocol_scheme">fb459563224580080</string>
+
 </resources>

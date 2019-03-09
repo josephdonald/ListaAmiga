@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -13,6 +14,13 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 import com.firebase.ui.auth.AuthUI;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -25,6 +33,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthUserCollisionException;
@@ -33,6 +42,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.internal.api.FirebaseNoSignedInUserException;
 
+import java.security.MessageDigest;
+import java.security.Signature;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -47,6 +58,9 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
     private GoogleSignInClient loginGoogle;
     private GoogleSignInAccount contaGoogle;
 
+    private LoginButton btnLoginFacebook;
+    private CallbackManager  callbackManager;
+
     private FirebaseAuth firebaseAuth;
 
     @Override
@@ -59,6 +73,9 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
         /** INICIALIZA O SERVIÇO DE CONTA DO GOOGLE **/
         servicosGoogle();
+
+        /** INICIALIZA O SERVICO DE CONTA DO FACEBOOK **/
+        servicosFacebook();
 
         /** OBTENDO A INSTANCIA DO FIREBASE **/
         firebaseAuth = FirebaseAuth.getInstance();
@@ -76,6 +93,9 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
         //BOTAO DE LOGIN DO GOOGLE
         findViewById(R.id.id_login_google).setOnClickListener(this);
+
+        //BOTAO DE LOGIN PELO FACEBOOK
+        findViewById(R.id.btn_login_facebook).setOnClickListener(this);
 
         //LINK PARA ABRIR TELA DE CADASTRO
         findViewById(R.id.txt_cadastro_tela).setOnClickListener(this);
@@ -103,6 +123,12 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
                 break;
 
+            case R.id.btn_login_facebook:
+
+                logarContaFacebook();
+
+                break;
+
             case R.id.txt_cadastro_tela:
 
                 startActivity( new Intent(getBaseContext(), CadastroUsuario.class) );
@@ -118,6 +144,49 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
         }
 
     }
+
+    /** METODO PARA INICIALIZAR OS SERVICOS PELO FACEBOOK **/
+    private void servicosFacebook(){
+
+        callbackManager = CallbackManager.Factory.create();
+
+        LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+
+                adicionarContaFacebookFirebase( loginResult.getAccessToken() );
+
+            }
+
+            @Override
+            public void onCancel() {
+
+                Toast.makeText(Login.this, "Login pela conta do Facebook cancelado.", Toast.LENGTH_LONG).show();
+
+            }
+
+            @Override
+            public void onError(FacebookException error) {
+
+                Toast.makeText(Login.this, "Erro com o login do facebook: " + error.getMessage(), Toast.LENGTH_LONG).show();
+
+            }
+        });
+
+    }
+
+    /** METODO PARA INICIALIZAR OS SERVICOS PELO GOOGLE **/
+    private void servicosGoogle(){
+
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        loginGoogle = GoogleSignIn.getClient(this, gso);
+
+    }
+
 
     /**--------------------- METODOS DE LOGIN ----------------------**/
     /** LOGAR CONTA EMAIL **/
@@ -142,6 +211,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
         String loginInterno = loginExterno;
         String senhaInterna = senhaExterna;
 
+        Log.i("testeLogin", "Usuario: " + loginInterno + " - Senha: " + senhaInterna);
 //        String loginInterno = "teste@teste.com";
 //        String senhaInterna = "123456";
 
@@ -184,20 +254,8 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
     }
 
-    /** METODO PARA LOGIN PELO GOOGLE **/
-    private void servicosGoogle(){
-
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
-
-        loginGoogle = GoogleSignIn.getClient(this, gso);
-
-    }
-
     /** LOGAR CONTA GOOGLE **/
-    protected void logarContaGoogle(){
+    private void logarContaGoogle(){
 
         GoogleSignInAccount contaGoogle = GoogleSignIn.getLastSignedInAccount(this);
 
@@ -216,14 +274,26 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
     }
 
+    /** LOGAR PELA CONTA DO FACEBOOK **/
+    private void logarContaFacebook(){
+
+        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "email"));
+
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+
+        //METODO DE CALLBACK DO FACEBOOK
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == 555){
 
+            Task<GoogleSignInAccount> taskGoogle = GoogleSignIn.getSignedInAccountFromIntent(data);
+
             try{
-                Task<GoogleSignInAccount> taskGoogle = GoogleSignIn.getSignedInAccountFromIntent(data);
 
                 GoogleSignInAccount contaGoogle = taskGoogle.getResult();
                 autenticarFirebaseComGoogle( contaGoogle );
@@ -238,13 +308,34 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
         } else {
 
-            Toast.makeText(this, "O REQUEST CODE não confere!", Toast.LENGTH_SHORT).show();
-
         }
 
     }
 
-    /** AUTENTICAR CONTA GOOGLE NO FIREBASE CRIANDO O USUÁRIO**/
+    /** ADICIONANDO CONTAS EXTERNAS AO FIREBASE VINCULANDO O USUÁRIO **/
+
+    private void adicionarContaFacebookFirebase(AccessToken token) {
+
+        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
+        firebaseAuth.signInWithCredential(credential)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+
+                            abrirMainActivity();
+                            Toast.makeText(Login.this, "Logado com sucesso pelo facebook.", Toast.LENGTH_LONG).show();
+
+                        } else {
+                            Toast.makeText(Login.this, "Erro: " + task.getException(), Toast.LENGTH_LONG).show();
+                        }
+
+                    }
+                });
+    }
+
+
+
     private void autenticarFirebaseComGoogle(final GoogleSignInAccount contaGoogle){
         Log.i( "IDFirebase","firebaseAuthWithGoogle:" + contaGoogle.getId());
 
@@ -257,7 +348,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
                         if (task.isSuccessful()){
 
                             Toast.makeText(Login.this, "Usuário logado com conta do Google.", Toast.LENGTH_LONG).show();
-                            startActivity(new Intent(getBaseContext(), MainActivity.class));
+                            abrirMainActivity();
                             finish();
 
                         } else {
