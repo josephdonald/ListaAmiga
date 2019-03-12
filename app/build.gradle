@@ -39,7 +39,14 @@ dependencies {
 
     //DEPENDENCIAS PARA LOGIN PELO FACEBOOK
     implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
+    implementation 'com.facebook.android:facebook-login:[4,5)'
 
+    //DEPENDENCIAS PARA A IMAGEM CIRCULAR
+    implementation 'de.hdodenhof:circleimageview:3.0.0'
+
+    //OBTER IMAGEM DE LINK
+    implementation 'com.github.bumptech.glide:glide:4.9.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.9.0'
 
 }
 apply plugin: 'com.google.gms.google-services'

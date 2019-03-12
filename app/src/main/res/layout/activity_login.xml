@@ -6,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#CDE2F3"
-    android:padding="5dp"
     tools:context=".Login">
 
     <ScrollView
@@ -25,7 +24,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
                 android:text="LISTA AMIGA"
@@ -71,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
-                android:layout_marginTop="50dp"
+                android:layout_marginTop="30dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
                 android:background="@color/colorPrimary"
@@ -87,7 +86,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
-                android:layout_marginTop="50dp"
+                android:layout_marginTop="30dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
                 android:text="Não é cadastrado? Clique aqui."
@@ -101,7 +100,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
-                android:layout_marginTop="50dp"
+                android:layout_marginTop="30dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
                 android:text="Esqueceu sua senha? Clique aqui."
@@ -116,7 +115,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
-                android:layout_marginTop="35dp"
+                android:layout_marginTop="50dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginRight="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -141,7 +140,7 @@
 
             <Button
                 android:id="@+id/btn_login_facebook"
-                android:layout_width="185dp"
+                android:layout_width="200dp"
                 android:layout_height="44dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
@@ -150,14 +149,36 @@
                 android:layout_marginRight="8dp"
                 android:background="@drawable/botaofacebook"
                 android:clickable="true"
+                android:elevation="10dp"
+                android:focusable="true"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/id_login_google" />
 
 
+            <Button
+                android:id="@+id/btn_pular_login"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:text="Pular login"
+                android:background="@color/colorPrimary"
+                android:textColor="@android:color/white"
+                android:textAllCaps="false"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/btn_login_facebook" />
+
+
         </android.support.constraint.ConstraintLayout>
 
     </ScrollView>
+
+
 
 
 </android.support.constraint.ConstraintLayout>

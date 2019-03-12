@@ -2,7 +2,31 @@ package com.container.listaamiga.Classes;
 
 public class Usuario {
 
-    private String email, senha;
+    private String nome, fotoURL, email, senha;
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public String getFotoURL() {
+        return fotoURL;
+    }
+
+    public void setFotoURL(String fotoURL) {
+        this.fotoURL = fotoURL;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
     public Usuario() {
     }
