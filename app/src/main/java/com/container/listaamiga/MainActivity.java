@@ -32,16 +32,20 @@ import com.facebook.GraphResponse;
 import com.facebook.internal.CallbackManagerImpl;
 import com.facebook.login.LoginManager;
 import com.facebook.login.widget.LoginButton;
+import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+
+import static com.google.android.gms.auth.api.credentials.CredentialPickerConfig.Prompt.SIGN_IN;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -61,15 +65,13 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Log.i("testeIniciar", "1");
-
         //OBTEM A INTANCIA DO USUARIO AUTENTICADO
         firebaseAuth = FirebaseAuth.getInstance();
 
         //callBack do Facebook
         callbackManager = CallbackManager.Factory.create();
 
-        /**----- CARREGA FLOAT, TOOLBAR, DRAWER E NAVIGATION -----**/
+        /**------------------------ CARREGA FLOAT, TOOLBAR, DRAWER E NAVIGATION ----------------------------------**/
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -90,7 +92,7 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        /**--------------------------------------------------------**/
+        /**---------------------------------------------------------------------------------------------------------**/
 
         /**-------- INSTANCIA A VIEW DO HEADER DO NAVIGATION E CARREGA OS XMLs ----------**/
         View headerView = navigationView.getHeaderView(0);
@@ -100,22 +102,33 @@ public class MainActivity extends AppCompatActivity
         emailPerfilActivity = headerView.findViewById(R.id.email_perfil);
         /**------------------------------------------------------------------------------**/
 
-        Log.i("testeIniciar", "2");
-
         //METODO PARA PERSONALIZAR O APP DE ACORDO COM O USUARIO
 
         Intent intentLogin = getIntent();
         int perfilLogin = intentLogin.getIntExtra("perfil",0);
-        Log.i("testeIniciar", String.valueOf(perfilLogin));
-        personalizaPerfil( perfilLogin );
+
+//        personalizaPerfil( perfilLogin );
 
         verificaStatusLogin();
 
-
-
 //        mensagemInicial = findViewById(R.id.txt_msg_inicial);
 
+    }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        //CARREGA DADOS DO FACEBOOK
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+
+        Log.i("testeDadosGoogle", "Result Code: " + String.valueOf(requestCode));
+        //CARREGA DADOS DO GOOGLE
+        if (requestCode == SIGN_IN){
+
+            carregarPerfilGoogle( data );
+
+        }
 
     }
 
@@ -184,29 +197,34 @@ public class MainActivity extends AppCompatActivity
     }
 
     /**
-     * ############## MÉTODOS ###############
+     * ####################################### MÉTODOS ###########################################
      * **/
 
-    /** RECEBER DADOS DO USUÁRIO LOGADO **/
+    /**--------------------------- RECEBER DADOS DO USUÁRIO LOGADO ---------------------------- **/
     private void personalizaPerfil(int perfilRecebido){
 
         switch ( perfilRecebido ){
 
             case 1:
 
-            carregarPerfilFacebook();
+                carregarPerfilEmail();
 
                 break;
 
             case 2:
 
+
                 break;
 
             case 3:
 
+                carregarPerfilFacebook();
+
                 break;
 
             case 4:
+
+                carregarPerfilAnonimo();
 
                 break;
 
@@ -215,17 +233,58 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        Log.i("testeIniciar", "3");
 
-        //CARREGA DADOS DO FACEBOOK
-        callbackManager.onActivityResult(requestCode, resultCode, data);
+    /**----------------- METODO PARA CARREGAR PERFIL DO E-MAIL ----------------------------------**/
+    private void carregarPerfilEmail(){
+        Log.i("testeLogin", "Email");
+
+
     }
 
-    /**-------------- METODOS PARA CARREGAR INFORMACOES DO USUARIO DO FACEBOOK ----------------**/
+    /**---------------- METODOS PARA CARREGAR INFORMACAOES DO USUARIO DO GOOGLE ---------------- **/
+    private void carregarPerfilGoogle( Intent dadosRecebidos ){
+        Log.i("testeLogin", "Google");
+
+        GoogleSignInResult resultadoConta = Auth.GoogleSignInApi.getSignInResultFromIntent( dadosRecebidos );
+
+        if (resultadoConta.isSuccess()){
+
+            GoogleSignInAccount contaGoogle = resultadoConta.getSignInAccount();
+
+            obterDadosPerfilGoogle( contaGoogle );
+
+        }
+
+
+
+    }
+
+    private void obterDadosPerfilGoogle(GoogleSignInAccount contaGoogleRecebida){
+
+        Log.i("testeDadosGoogle", "OK OBTER DADOS!");
+
+        String nome = contaGoogleRecebida.getDisplayName();
+        String email = contaGoogleRecebida.getEmail();
+        String id = contaGoogleRecebida.getId();
+        String fotoURL = contaGoogleRecebida.getPhotoUrl().toString();
+
+        nomePerfilActivity.setText( nome );
+        emailPerfilActivity.setText( email );
+
+        Log.i("testeDadosGoogle", "ID Google"+ id );
+
+        RequestOptions requestOptions = new RequestOptions();
+        requestOptions.dontAnimate();
+
+        Glide.with( getBaseContext() ).load(fotoURL).into( fotoPerfilActivity );
+
+
+    }
+
+
+    /**---------------- METODOS PARA CARREGAR INFORMACOES DO USUARIO DO FACEBOOK ----------------**/
     private void carregarPerfilFacebook(){
+        Log.i("testeLogin", "Facebook");
 
         AccessTokenTracker tokenTracker = new AccessTokenTracker() {
             @Override
@@ -289,6 +348,14 @@ public class MainActivity extends AppCompatActivity
     }
     /**-------------------------------------------------------------------------------------------**/
 
+
+    private void carregarPerfilAnonimo(){
+        Log.i("testeLogin", "Anônimo");
+
+
+    }
+
+
     private void verificaStatusLogin(){
 
         if (AccessToken.getCurrentAccessToken() != null){
@@ -299,7 +366,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    /**---------------- LOGOUT DO USUÁRIO ----------------**/
+    /**----------------------------------- LOGOUT DO USUÁRIO -----------------------------------**/
     private void deslogarUsuario( ){
 
         //DESLOGA O USUARIO DO E-MAIL
@@ -326,7 +393,7 @@ public class MainActivity extends AppCompatActivity
         finish();
 
     }
-    /**---------------------------------------------------**/
+    /**-----------------------------------------------------------------------------------------**/
 
 
 }

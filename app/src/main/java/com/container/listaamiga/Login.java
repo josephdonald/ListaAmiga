@@ -26,12 +26,14 @@ import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.FirebaseException;
@@ -54,6 +56,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import static com.google.android.gms.auth.api.credentials.CredentialPickerConfig.Prompt.SIGN_IN;
+
 public class Login extends AppCompatActivity implements View.OnClickListener{
 
     private EditText edtLogin;
@@ -63,6 +67,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
     private GoogleSignInClient loginGoogle;
     private GoogleSignInAccount contaGoogle;
+    private GoogleApiClient mGoogleApiClient;
 
     private LoginButton btnLoginFacebook;
     private CallbackManager  callbackManager;
@@ -202,6 +207,12 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
                 .requestEmail()
                 .build();
 
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, null)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+
+
         loginGoogle = GoogleSignIn.getClient(this, gso);
 
     }
@@ -282,7 +293,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
         if (contaGoogle == null){
 
             Intent intentGoogle = loginGoogle.getSignInIntent();
-            startActivityForResult(intentGoogle, 555);
+            startActivityForResult(intentGoogle, SIGN_IN);
 
         } else {
 
@@ -309,17 +320,17 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == 555){
+        if (requestCode == SIGN_IN){
 
             Task<GoogleSignInAccount> taskGoogle = GoogleSignIn.getSignedInAccountFromIntent(data);
 
             try{
-                Usuario usuario = new Usuario();
+//                Usuario usuario = new Usuario();
                 GoogleSignInAccount contaGoogle = taskGoogle.getResult();
 
-                usuario.setNome( contaGoogle.getDisplayName() );
-                usuario.setFotoURL(( contaGoogle.getPhotoUrl().toString() ));
-                usuario.setEmail( contaGoogle.getEmail() );
+//                usuario.setNome( contaGoogle.getDisplayName() );
+//                usuario.setFotoURL(( contaGoogle.getPhotoUrl().toString() ));
+//                usuario.setEmail( contaGoogle.getEmail() );
 
                 autenticarFirebaseComGoogle( contaGoogle );
 //                startActivity(new Intent(getBaseContext(), MainActivity.class));
@@ -393,7 +404,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
 
-                            abrirMainActivity(perfilLogin);
+                            abrirMainActivity( perfilLogin );
 
                         } else {
 
@@ -412,6 +423,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
     private void abrirMainActivity(int tipoPerfil){
 
         Intent intentPerfilLogado = new Intent(this, MainActivity.class);
+
         intentPerfilLogado.putExtra("perfil", tipoPerfil);
 
         startActivity( intentPerfilLogado );
