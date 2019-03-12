@@ -14,6 +14,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.container.listaamiga.Classes.Usuario;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
@@ -31,6 +33,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -48,6 +51,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.internal.api.FirebaseNoSignedInUserException;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.security.MessageDigest;
@@ -66,7 +70,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
     private String login, senha;
 
     private GoogleSignInClient loginGoogle;
-    private GoogleSignInAccount contaGoogle;
+//    private GoogleSignInAccount contaGoogle;
     private GoogleApiClient mGoogleApiClient;
 
     private LoginButton btnLoginFacebook;
@@ -169,6 +173,40 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+
+        //METODO DE CALLBACK DO FACEBOOK
+        callbackManager.onActivityResult(requestCode, resultCode, data);
+
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == SIGN_IN){
+
+            GoogleSignInResult resultadoAutenticacao = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+
+            try{
+
+                if ( resultadoAutenticacao.isSuccess() ){
+
+                    GoogleSignInAccount contaGoogle = resultadoAutenticacao.getSignInAccount();
+                    autenticarFirebaseComGoogle( contaGoogle );
+
+                }
+
+            } catch (Exception e){
+
+                Toast.makeText(this, "Erro no sign: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                Log.i("errosign", "Erro: " + e.getMessage());
+
+            }
+
+        } else {
+
+        }
+
+    }
+
     /** METODO PARA INICIALIZAR OS SERVICOS PELO FACEBOOK **/
     private void servicosFacebook(){
 
@@ -240,7 +278,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
         String loginInterno = loginExterno;
         String senhaInterna = senhaExterna;
-        final int perfilLogin = 1;
 
         Log.i("testeLogin", "Usuario: " + loginInterno + " - Senha: " + senhaInterna);
 //        String loginInterno = "teste@teste.com";
@@ -276,7 +313,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
                     Toast.makeText(Login.this, "Usuário logado com sucesso.", Toast.LENGTH_LONG).show();
 
-                    abrirMainActivity( perfilLogin );
+//                    abrirMainActivity( perfilLogin );
 //                    Toast.makeText(Login.this, "Erro no login: " + task.getException(), Toast.LENGTH_SHORT).show();
                 }
 
@@ -305,49 +342,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
     }
 
-    /** LOGAR PELA CONTA DO FACEBOOK **/
-    private void logarContaFacebook(){
-
-        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "email"));
-
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-
-        //METODO DE CALLBACK DO FACEBOOK
-        callbackManager.onActivityResult(requestCode, resultCode, data);
-
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == SIGN_IN){
-
-            Task<GoogleSignInAccount> taskGoogle = GoogleSignIn.getSignedInAccountFromIntent(data);
-
-            try{
-//                Usuario usuario = new Usuario();
-                GoogleSignInAccount contaGoogle = taskGoogle.getResult();
-
-//                usuario.setNome( contaGoogle.getDisplayName() );
-//                usuario.setFotoURL(( contaGoogle.getPhotoUrl().toString() ));
-//                usuario.setEmail( contaGoogle.getEmail() );
-
-                autenticarFirebaseComGoogle( contaGoogle );
-//                startActivity(new Intent(getBaseContext(), MainActivity.class));
-
-            } catch (Exception e){
-
-                Toast.makeText(this, "Erro no sign: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                Log.i("errosign", "Erro: " + e.getMessage());
-
-            }
-
-        } else {
-
-        }
-
-    }
-
     /** ADICIONANDO CONTAS EXTERNAS AO FIREBASE VINCULANDO O USUÁRIO **/
     private void autenticarFirebaseComGoogle(final GoogleSignInAccount contaGoogle){
         Log.i( "IDFirebase","firebaseAuthWithGoogle:" + contaGoogle.getId());
@@ -362,9 +356,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
                         if (task.isSuccessful()){
 
-                            Toast.makeText(Login.this, "Usuário logado com conta do Google.", Toast.LENGTH_LONG).show();
-                            abrirMainActivity( perfilLogin );
-                            finish();
+                            obterDadosContaGoogle( contaGoogle );
 
                         } else {
                             Toast.makeText(Login.this, "Erro ao logar o usuário pelo Google", Toast.LENGTH_LONG).show();
@@ -374,7 +366,30 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
                 });
     }
 
-    private void adicionarContaFacebookFirebase(AccessToken token) {
+    private void obterDadosContaGoogle(GoogleSignInAccount contaGoogle){
+
+        Usuario usuarioGoogle = new Usuario();
+
+        usuarioGoogle.setNome( contaGoogle.getDisplayName() );
+        usuarioGoogle.setEmail( contaGoogle.getEmail() );
+        usuarioGoogle.setId( contaGoogle.getId() );
+        usuarioGoogle.setFotoURL( contaGoogle.getPhotoUrl().toString() );
+        usuarioGoogle.setTipoPerfil("google");
+
+        abrirMainActivity(usuarioGoogle);
+
+    }
+
+
+    /** LOGAR PELA CONTA DO FACEBOOK **/
+    private void logarContaFacebook(){
+
+        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile", "email"));
+
+    }
+
+
+    private void adicionarContaFacebookFirebase(final AccessToken token) {
         final int perfilLogin = 3;
 
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
@@ -384,7 +399,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
 
-                            abrirMainActivity( perfilLogin );
+                            obterDadosContaFacebook( token );
                             Toast.makeText(Login.this, "Logado com sucesso pelo facebook.", Toast.LENGTH_LONG).show();
 
                         } else {
@@ -393,6 +408,49 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
                     }
                 });
+    }
+
+    private void obterDadosContaFacebook(AccessToken accessToken){
+
+        final Usuario usuarioFacebook = new Usuario();
+
+        GraphRequest request = GraphRequest.newMeRequest(accessToken, new GraphRequest.GraphJSONObjectCallback() {
+            @Override
+            public void onCompleted(JSONObject object, GraphResponse response) {
+
+                try{
+
+                    String id = object.getString("id");
+                    String primeiroNome = object.getString("first_name");
+                    String ultimoNome = object.getString("last_name");
+                    String email = object.getString("email");
+                    String fotoURL = "https://graph.facebook.com/" + id + "/picture?type=normal";
+
+                    usuarioFacebook.setId( id );
+                    usuarioFacebook.setNome( primeiroNome + " "+ ultimoNome );
+                    usuarioFacebook.setEmail( email );
+                    usuarioFacebook.setFotoURL( fotoURL );
+                    usuarioFacebook.setTipoPerfil("facebook");
+
+                    abrirMainActivity( usuarioFacebook );
+
+                } catch (JSONException e){
+
+                    Toast.makeText(Login.this, "Erro ao carregar o perfil: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    e.printStackTrace();
+
+                }
+
+
+            }
+        });
+
+
+        Bundle parametros = new Bundle();
+        parametros.putString("fields", "first_name, last_name, email, id ");
+        request.setParameters( parametros );
+        request.executeAsync();
+
     }
 
     private void loginAnonimo(){
@@ -404,7 +462,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
 
-                            abrirMainActivity( perfilLogin );
+//                            abrirMainActivity( perfilLogin );
 
                         } else {
 
@@ -420,15 +478,18 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
 
     /** MÉTODO QUE ABRE A TELA PRINCIPAL **/
-    private void abrirMainActivity(int tipoPerfil){
+    private void abrirMainActivity(Usuario usuarioRecebido){
 
         Intent intentPerfilLogado = new Intent(this, MainActivity.class);
 
-        intentPerfilLogado.putExtra("perfil", tipoPerfil);
+        intentPerfilLogado.putExtra("id", usuarioRecebido.getId() );
+        intentPerfilLogado.putExtra("nome", usuarioRecebido.getNome() );
+        intentPerfilLogado.putExtra("email", usuarioRecebido.getEmail() );
+        intentPerfilLogado.putExtra("fotoURL", usuarioRecebido.getFotoURL() );
+        intentPerfilLogado.putExtra("tipoPerfil", usuarioRecebido.getTipoPerfil() );
 
         startActivity( intentPerfilLogado );
 
-//        startActivity(new Intent(this, MainActivity.class));
         finish();
 
     }
@@ -436,12 +497,12 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
     /** MÉTODO QUE VERIFICA SE HÁ USUÁRIOS LOGADOS **/
     private void verificaUsuarioLogado(){
 
-        contaGoogle = GoogleSignIn.getLastSignedInAccount(this);
-        firebaseAuth = FirebaseAuth.getInstance();
-
-        if ((firebaseAuth.getCurrentUser() != null) || (contaGoogle != null)){
-            abrirMainActivity( 5 );
-        }
+//        contaGoogle = GoogleSignIn.getLastSignedInAccount(this);
+//        firebaseAuth = FirebaseAuth.getInstance();
+//
+//        if ((firebaseAuth.getCurrentUser() != null) || (contaGoogle != null)){
+//            abrirMainActivity( 5 );
+//        }
     }
 
     /** CONSTRUTOR **/

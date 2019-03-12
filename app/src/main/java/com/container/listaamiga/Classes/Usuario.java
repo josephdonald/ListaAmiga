@@ -2,7 +2,19 @@ package com.container.listaamiga.Classes;
 
 public class Usuario {
 
-    private String nome, fotoURL, email, senha;
+   private String id, nome, email, senha, fotoURL, tipoPerfil;
+
+    public Usuario() {
+
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getNome() {
         return nome;
@@ -10,14 +22,6 @@ public class Usuario {
 
     public void setNome(String nome) {
         this.nome = nome;
-    }
-
-    public String getFotoURL() {
-        return fotoURL;
-    }
-
-    public void setFotoURL(String fotoURL) {
-        this.fotoURL = fotoURL;
     }
 
     public String getEmail() {
@@ -28,17 +32,6 @@ public class Usuario {
         this.email = email;
     }
 
-    public Usuario() {
-    }
-
-    public String getUsuario() {
-        return email;
-    }
-
-    public void setUsuario(String usuario) {
-        this.email = usuario;
-    }
-
     public String getSenha() {
         return senha;
     }
@@ -46,5 +39,22 @@ public class Usuario {
     public void setSenha(String senha) {
         this.senha = senha;
     }
+
+    public String getFotoURL() {
+        return fotoURL;
+    }
+
+    public void setFotoURL(String fotoURL) {
+        this.fotoURL = fotoURL;
+    }
+
+    public String getTipoPerfil() {
+        return tipoPerfil;
+    }
+
+    public void setTipoPerfil(String tipoPerfil) {
+        this.tipoPerfil = tipoPerfil;
+    }
+
 
 }

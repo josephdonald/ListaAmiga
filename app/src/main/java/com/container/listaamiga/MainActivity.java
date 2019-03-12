@@ -24,6 +24,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
+import com.container.listaamiga.Classes.Usuario;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
@@ -55,9 +56,10 @@ public class MainActivity extends AppCompatActivity
     private GoogleSignInClient loginGoogle;
 
     private CircleImageView fotoPerfilActivity;
-    private TextView nomePerfilActivity, emailPerfilActivity;
+    private TextView nomePerfilActivity, emailPerfilActivity, tipoContaActivity;
 
     private CallbackManager callbackManager;
+    private Usuario usuario = new Usuario();
 
 
     @Override
@@ -100,37 +102,56 @@ public class MainActivity extends AppCompatActivity
         fotoPerfilActivity = (CircleImageView) headerView.findViewById(R.id.foto_perfil);
         nomePerfilActivity = headerView.findViewById(R.id.nome_perfil);
         emailPerfilActivity = headerView.findViewById(R.id.email_perfil);
+        tipoContaActivity = headerView.findViewById(R.id.tipo_conta);
         /**------------------------------------------------------------------------------**/
 
-        //METODO PARA PERSONALIZAR O APP DE ACORDO COM O USUARIO
-
+        /**----------- RECEBENDO OS DADOS DO USUARIO QUE LOGOU NO APP ----------**/
         Intent intentLogin = getIntent();
-        int perfilLogin = intentLogin.getIntExtra("perfil",0);
 
-//        personalizaPerfil( perfilLogin );
+        usuario.setId( intentLogin.getStringExtra("id"));
+        usuario.setNome( intentLogin.getStringExtra("nome"));
+        usuario.setEmail( intentLogin.getStringExtra("email"));
+        usuario.setFotoURL( intentLogin.getStringExtra("fotoURL"));
+        usuario.setTipoPerfil( intentLogin.getStringExtra("tipoPerfil"));
 
-        verificaStatusLogin();
+        Log.i("dadosObtidos",
+                "ID: " + usuario.getId() +
+                        " Nome: " + usuario.getNome() +
+                        " E-mail: " + usuario.getEmail() +
+                        " Foto URL: " + usuario.getFotoURL() +
+                        " Tipo de Perfil: " + usuario.getTipoPerfil()
+        );
 
-//        mensagemInicial = findViewById(R.id.txt_msg_inicial);
+        nomePerfilActivity.setText( usuario.getNome() );
+        emailPerfilActivity.setText( usuario.getEmail() );
+
+        Log.i("testeDadosGoogle", "ID Google"+ usuario.getId() );
+
+        RequestOptions requestOptions = new RequestOptions();
+        requestOptions.dontAnimate();
+
+        Glide.with( getBaseContext() ).load(usuario.getFotoURL()).into( fotoPerfilActivity );
+
+        tipoContaActivity.setText( usuario.getTipoPerfil() );
 
     }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        //CARREGA DADOS DO FACEBOOK
-        callbackManager.onActivityResult(requestCode, resultCode, data);
-
-        Log.i("testeDadosGoogle", "Result Code: " + String.valueOf(requestCode));
-        //CARREGA DADOS DO GOOGLE
-        if (requestCode == SIGN_IN){
-
-            carregarPerfilGoogle( data );
-
-        }
-
-    }
+//
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        //CARREGA DADOS DO FACEBOOK
+//        callbackManager.onActivityResult(requestCode, resultCode, data);
+//
+//        Log.i("testeDadosGoogle", "Result Code: " + String.valueOf(requestCode));
+//        //CARREGA DADOS DO GOOGLE
+//        if (requestCode == SIGN_IN){
+//
+//            carregarPerfilGoogle( data );
+//
+//        }
+//
+//    }
 
     @Override
     public void onBackPressed() {
@@ -201,170 +222,170 @@ public class MainActivity extends AppCompatActivity
      * **/
 
     /**--------------------------- RECEBER DADOS DO USUÁRIO LOGADO ---------------------------- **/
-    private void personalizaPerfil(int perfilRecebido){
-
-        switch ( perfilRecebido ){
-
-            case 1:
-
-                carregarPerfilEmail();
-
-                break;
-
-            case 2:
-
-
-                break;
-
-            case 3:
-
-                carregarPerfilFacebook();
-
-                break;
-
-            case 4:
-
-                carregarPerfilAnonimo();
-
-                break;
-
-        }
-
-    }
-
-
-
-    /**----------------- METODO PARA CARREGAR PERFIL DO E-MAIL ----------------------------------**/
-    private void carregarPerfilEmail(){
-        Log.i("testeLogin", "Email");
-
-
-    }
-
-    /**---------------- METODOS PARA CARREGAR INFORMACAOES DO USUARIO DO GOOGLE ---------------- **/
-    private void carregarPerfilGoogle( Intent dadosRecebidos ){
-        Log.i("testeLogin", "Google");
-
-        GoogleSignInResult resultadoConta = Auth.GoogleSignInApi.getSignInResultFromIntent( dadosRecebidos );
-
-        if (resultadoConta.isSuccess()){
-
-            GoogleSignInAccount contaGoogle = resultadoConta.getSignInAccount();
-
-            obterDadosPerfilGoogle( contaGoogle );
-
-        }
-
-
-
-    }
-
-    private void obterDadosPerfilGoogle(GoogleSignInAccount contaGoogleRecebida){
-
-        Log.i("testeDadosGoogle", "OK OBTER DADOS!");
-
-        String nome = contaGoogleRecebida.getDisplayName();
-        String email = contaGoogleRecebida.getEmail();
-        String id = contaGoogleRecebida.getId();
-        String fotoURL = contaGoogleRecebida.getPhotoUrl().toString();
-
-        nomePerfilActivity.setText( nome );
-        emailPerfilActivity.setText( email );
-
-        Log.i("testeDadosGoogle", "ID Google"+ id );
-
-        RequestOptions requestOptions = new RequestOptions();
-        requestOptions.dontAnimate();
-
-        Glide.with( getBaseContext() ).load(fotoURL).into( fotoPerfilActivity );
-
-
-    }
-
-
-    /**---------------- METODOS PARA CARREGAR INFORMACOES DO USUARIO DO FACEBOOK ----------------**/
-    private void carregarPerfilFacebook(){
-        Log.i("testeLogin", "Facebook");
-
-        AccessTokenTracker tokenTracker = new AccessTokenTracker() {
-            @Override
-            protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
-
-                if (currentAccessToken == null){
-                    nomePerfilActivity.setText("");
-                    emailPerfilActivity.setText("");
-                    fotoPerfilActivity.setImageResource(0);
-                    Toast.makeText(MainActivity.this, "Perfil não foi carregado.", Toast.LENGTH_SHORT).show();
-                } else {
-
-                    obterDadosPerfilFacebook( currentAccessToken );
-
-                }
-
-            }
-        };
-
-    }
-
-    private void obterDadosPerfilFacebook(AccessToken accessToken){
-
-        GraphRequest request = GraphRequest.newMeRequest(accessToken, new GraphRequest.GraphJSONObjectCallback() {
-            @Override
-            public void onCompleted(JSONObject object, GraphResponse response) {
-
-                try{
-
-                    String primeiroNome = object.getString("first_name");
-                    String ultimoNome = object.getString("last_name");
-                    String email = object.getString("email");
-                    String id = object.getString("id");
-
-                    String imageURL = "https://graph.facebook.com/" + id + "/picture?type=normal";
-
-                    emailPerfilActivity.setText(email);
-                    nomePerfilActivity.setText(primeiroNome + " " + ultimoNome);
-
-                    RequestOptions requestOptions = new RequestOptions();
-                    requestOptions.dontAnimate();
-
-                    Glide.with( getBaseContext() ).load(imageURL).into( fotoPerfilActivity );
-
-                } catch (JSONException e){
-
-                    Toast.makeText(MainActivity.this, "Erro ao carregar o perfil: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                    e.printStackTrace();
-
-                }
-
-
-            }
-        });
-
-
-        Bundle parametros = new Bundle();
-        parametros.putString("fields", "first_name, last_name, email, id ");
-        request.setParameters( parametros );
-        request.executeAsync();
-    }
-    /**-------------------------------------------------------------------------------------------**/
-
-
-    private void carregarPerfilAnonimo(){
-        Log.i("testeLogin", "Anônimo");
-
-
-    }
-
-
-    private void verificaStatusLogin(){
-
-        if (AccessToken.getCurrentAccessToken() != null){
-
-            obterDadosPerfilFacebook( AccessToken.getCurrentAccessToken() );
-
-        }
-
-    }
+//    private void personalizaPerfil(int perfilRecebido){
+//
+//        switch ( perfilRecebido ){
+//
+//            case 1:
+//
+//                carregarPerfilEmail();
+//
+//                break;
+//
+//            case 2:
+//
+//
+//                break;
+//
+//            case 3:
+//
+//                carregarPerfilFacebook();
+//
+//                break;
+//
+//            case 4:
+//
+//                carregarPerfilAnonimo();
+//
+//                break;
+//
+//        }
+//
+//    }
+//
+//
+//
+//    /**----------------- METODO PARA CARREGAR PERFIL DO E-MAIL ----------------------------------**/
+//    private void carregarPerfilEmail(){
+//        Log.i("testeLogin", "Email");
+//
+//
+//    }
+//
+//    /**---------------- METODOS PARA CARREGAR INFORMACAOES DO USUARIO DO GOOGLE ---------------- **/
+//    private void carregarPerfilGoogle( Intent dadosRecebidos ){
+//        Log.i("testeLogin", "Google");
+//
+//        GoogleSignInResult resultadoConta = Auth.GoogleSignInApi.getSignInResultFromIntent( dadosRecebidos );
+//
+//        if (resultadoConta.isSuccess()){
+//
+//            GoogleSignInAccount contaGoogle = resultadoConta.getSignInAccount();
+//
+//            obterDadosPerfilGoogle( contaGoogle );
+//
+//        }
+//
+//
+//
+//    }
+//
+//    private void obterDadosPerfilGoogle(GoogleSignInAccount contaGoogleRecebida){
+//
+//        Log.i("testeDadosGoogle", "OK OBTER DADOS!");
+//
+//        String nome = contaGoogleRecebida.getDisplayName();
+//        String email = contaGoogleRecebida.getEmail();
+//        String id = contaGoogleRecebida.getId();
+//        String fotoURL = contaGoogleRecebida.getPhotoUrl().toString();
+//
+//        nomePerfilActivity.setText( nome );
+//        emailPerfilActivity.setText( email );
+//
+//        Log.i("testeDadosGoogle", "ID Google"+ id );
+//
+//        RequestOptions requestOptions = new RequestOptions();
+//        requestOptions.dontAnimate();
+//
+//        Glide.with( getBaseContext() ).load(fotoURL).into( fotoPerfilActivity );
+//
+//
+//    }
+//
+//
+//    /**---------------- METODOS PARA CARREGAR INFORMACOES DO USUARIO DO FACEBOOK ----------------**/
+//    private void carregarPerfilFacebook(){
+//        Log.i("testeLogin", "Facebook");
+//
+//        AccessTokenTracker tokenTracker = new AccessTokenTracker() {
+//            @Override
+//            protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
+//
+//                if (currentAccessToken == null){
+//                    nomePerfilActivity.setText("");
+//                    emailPerfilActivity.setText("");
+//                    fotoPerfilActivity.setImageResource(0);
+//                    Toast.makeText(MainActivity.this, "Perfil não foi carregado.", Toast.LENGTH_SHORT).show();
+//                } else {
+//
+//                    obterDadosPerfilFacebook( currentAccessToken );
+//
+//                }
+//
+//            }
+//        };
+//
+//    }
+//
+//    private void obterDadosPerfilFacebook(AccessToken accessToken){
+//
+//        GraphRequest request = GraphRequest.newMeRequest(accessToken, new GraphRequest.GraphJSONObjectCallback() {
+//            @Override
+//            public void onCompleted(JSONObject object, GraphResponse response) {
+//
+//                try{
+//
+//                    String primeiroNome = object.getString("first_name");
+//                    String ultimoNome = object.getString("last_name");
+//                    String email = object.getString("email");
+//                    String id = object.getString("id");
+//
+//                    String imageURL = "https://graph.facebook.com/" + id + "/picture?type=normal";
+//
+//                    emailPerfilActivity.setText(email);
+//                    nomePerfilActivity.setText(primeiroNome + " " + ultimoNome);
+//
+//                    RequestOptions requestOptions = new RequestOptions();
+//                    requestOptions.dontAnimate();
+//
+//                    Glide.with( getBaseContext() ).load(imageURL).into( fotoPerfilActivity );
+//
+//                } catch (JSONException e){
+//
+//                    Toast.makeText(MainActivity.this, "Erro ao carregar o perfil: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+//                    e.printStackTrace();
+//
+//                }
+//
+//
+//            }
+//        });
+//
+//
+//        Bundle parametros = new Bundle();
+//        parametros.putString("fields", "first_name, last_name, email, id ");
+//        request.setParameters( parametros );
+//        request.executeAsync();
+//    }
+//    /**-------------------------------------------------------------------------------------------**/
+//
+//
+//    private void carregarPerfilAnonimo(){
+//        Log.i("testeLogin", "Anônimo");
+//
+//
+//    }
+//
+//
+//    private void verificaStatusLogin(){
+//
+//        if (AccessToken.getCurrentAccessToken() != null){
+//
+//            obterDadosPerfilFacebook( AccessToken.getCurrentAccessToken() );
+//
+//        }
+//
+//    }
 
     /**----------------------------------- LOGOUT DO USUÁRIO -----------------------------------**/
     private void deslogarUsuario( ){

@@ -58,7 +58,7 @@ public class CadastroUsuario extends AppCompatActivity {
 
                 if ( verificaDados(emailCadastrado, senhaCadastrada, confirmSenhaCadastrada) ) {
 
-                    cadastrarConta(usuario.getUsuario(), usuario.getSenha());
+                    cadastrarConta(usuario.getEmail(), usuario.getSenha());
 
                 } else {
 
@@ -93,7 +93,7 @@ public class CadastroUsuario extends AppCompatActivity {
                 if ( senhaRecebida.equals( confirmaSenhaRecebida ) ){
 
                     dadosOk = true;
-                    usuario.setUsuario( emailRecebido );
+                    usuario.setEmail( emailRecebido );
                     usuario.setSenha( senhaRecebida );
 
                 } else{
