@@ -26,7 +26,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class CadastroUsuario extends AppCompatActivity {
 
-    private TextView txtEmailCad, txtSenhaCad, txtConfirmaSenhaCad;
+    private TextView txtNomeCad, txtEmailCad, txtSenhaCad, txtConfirmaSenhaCad;
     private Button btnCadastrar;
     private Usuario usuario = new Usuario();
     private DatabaseReference databaseReference  = FirebaseDatabase.getInstance().getReference();
@@ -39,6 +39,7 @@ public class CadastroUsuario extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cadastro_usuario);
 
+        txtNomeCad = findViewById(R.id.edt_nome_cad);
         txtEmailCad = findViewById(R.id.edt_email_cad);
         txtSenhaCad = findViewById(R.id.edt_senha_cad);
         txtConfirmaSenhaCad = findViewById(R.id.edt_confirm_senha_cad);
@@ -48,9 +49,16 @@ public class CadastroUsuario extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-//                emailCadastrado = txtEmailCad.getText().toString();
-//                senhaCadastrada = txtSenhaCad.getText().toString();
-//                confirmSenhaCadastrada = txtConfirmaSenhaCad.getText().toString();
+                Usuario usuario = new Usuario();
+
+                usuario.setNome(txtNomeCad.getText().toString());
+                usuario.setEmail(txtEmailCad.getText().toString());
+                usuario.setSenha(txtEmailCad.getText().toString());
+
+
+                emailCadastrado = usuario.getEmail();
+                senhaCadastrada = usuario.getSenha();
+                confirmSenhaCadastrada = txtConfirmaSenhaCad.getText().toString();
 
                 emailCadastrado = "applistaamiga@gmail.com";
                 senhaCadastrada = "123456";
@@ -116,46 +124,6 @@ public class CadastroUsuario extends AppCompatActivity {
 
     }
 
-//    private Boolean verificarEmail(String email){
-//
-//        Boolean emailOk = false;
-//
-//        String emailRecebido = email;
-//
-////        if ( emailRecebido.indexOf('@') > 0){
-//
-//            emailOk = true;
-//            usuario.setUsuario( emailRecebido );
-//
-////        }   else {
-////            Toast.makeText(this, "E-mail inválido. Verifique o endereço informado.", Toast.LENGTH_LONG).show();
-////        }
-//
-//        return emailOk;
-//
-//    }
-
-    private Boolean verificaSenha(String senha, String confirmSenha){
-
-        Boolean senhaOk = false;
-
-        String senhaRecebida = senha;
-        String confirmSenhaRecebida = confirmSenha;
-
-        if ( senhaRecebida.equals( confirmSenhaRecebida ) ){
-
-            senhaOk = true;
-            usuario.setSenha( senhaRecebida );
-
-        } else{
-
-            Toast.makeText(this, "As senha não conferem. Por favor, insira novamente.", Toast.LENGTH_LONG).show();
-
-        }
-
-        return senhaOk;
-
-    }
 
     /**
      * CADASTRA CONTA DE USUÁRIO
@@ -243,7 +211,6 @@ public class CadastroUsuario extends AppCompatActivity {
             Log.i("testeEmail", "Erro ao enviar o e-mail de verificação: " + e.getMessage() );
 
         }
-
 
     }
 

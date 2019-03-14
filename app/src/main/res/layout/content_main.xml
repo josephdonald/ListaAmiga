@@ -19,7 +19,7 @@
         android:layout_marginBottom="70dp">
 
         <ListView
-            android:id="@+id/listas_cadastradas"
+            android:id="@+id/list_listas_compras"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -27,16 +27,4 @@
 
     </FrameLayout>
 
-
-
-    <!--<TextView-->
-        <!--android:id="@+id/txt_msg_inicial"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="Não há listas cadastradas"-->
-        <!--android:textSize="25sp"-->
-        <!--app:layout_constraintBottom_toBottomOf="parent"-->
-        <!--app:layout_constraintEnd_toEndOf="parent"-->
-        <!--app:layout_constraintStart_toStartOf="parent"-->
-        <!--app:layout_constraintTop_toTopOf="parent" />-->
 </android.support.constraint.ConstraintLayout>
