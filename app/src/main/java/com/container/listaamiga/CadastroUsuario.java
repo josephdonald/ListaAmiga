@@ -137,7 +137,8 @@ public class CadastroUsuario extends AppCompatActivity {
 
         try{
 
-            autenticacaoContaUsuario.createUserWithEmailAndPassword(emailRecebido, senhaRecebida).addOnCompleteListener(CadastroUsuario.this, new OnCompleteListener<AuthResult>() {
+            autenticacaoContaUsuario.createUserWithEmailAndPassword(emailRecebido, senhaRecebida)
+                    .addOnCompleteListener(CadastroUsuario.this, new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
 
@@ -162,6 +163,13 @@ public class CadastroUsuario extends AppCompatActivity {
                         }
 
                     } else {
+
+                        FirebaseUser usuarioFirebase = task.getResult().getUser();
+
+                        usuario.setIdUsuario( usuarioFirebase.getUid() );
+
+                        //METODO PARA SALVAR OS DADOS DO USUARIO INCLUINDO O ID COMO "CHILD" NO FIREBASE
+                        usuario.salvarUsuario();
 
                         contaUsuario = autenticacaoContaUsuario.getCurrentUser();
 

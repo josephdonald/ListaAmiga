@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.CpuUsageInfo;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -25,6 +27,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.container.listaamiga.Classes.Usuario;
+import com.container.listaamiga.config.ConfiguracaoFirebase;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
@@ -40,6 +43,11 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -60,14 +68,24 @@ public class MainActivity extends AppCompatActivity
     private CallbackManager callbackManager;
     private Usuario usuario = new Usuario();
 
+    private DatabaseReference dadosFirebase;
+
+    private FirebaseUser userFirebase;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
         //OBTEM A INTANCIA DO USUARIO AUTENTICADO
         firebaseAuth = FirebaseAuth.getInstance();
+
+        dadosFirebase = ConfiguracaoFirebase.obterFirebase().child("usuarios").child(firebaseAuth.getUid());
+
+        //CARREGA PERFIL DO USUARIO
+        carregarPerfil( dadosFirebase );
 
         //callBack do Facebook
         callbackManager = CallbackManager.Factory.create();
@@ -106,39 +124,7 @@ public class MainActivity extends AppCompatActivity
 
         /**----------- RECEBENDO OS DADOS DO USUARIO QUE LOGOU NO APP ----------**/
         Intent intentLogin = getIntent();
-
-        usuario.setId( intentLogin.getStringExtra("id") );
-        usuario.setNome( intentLogin.getStringExtra("nome") );
-        usuario.setEmail( intentLogin.getStringExtra("email") );
-        usuario.setFotoURL( intentLogin.getStringExtra("fotoURL") );
-        usuario.setTipoPerfil( intentLogin.getStringExtra("tipoPerfil") );
-
-        if (usuario.getTipoPerfil().contentEquals("google") || usuario.getTipoPerfil().contentEquals("facebook") || usuario.getTipoPerfil().contentEquals("email")){
-
-            //ATRIBUINDO OS DADOS AOS TEXT VIEWs
-            nomePerfilActivity.setText( usuario.getNome() );
-            emailPerfilActivity.setText( usuario.getEmail() );
-            tipoContaActivity.setText( usuario.getTipoPerfil() );
-
-            Log.i("testeDadosGoogle", "ID Google"+ usuario.getId() );
-
-            //TRABALHA A IMAGEM PARA EXIBIR A FOTO DO PERFIL
-            RequestOptions requestOptions = new RequestOptions();
-            requestOptions.dontAnimate();
-
-            Glide.with( getBaseContext() ).load(usuario.getFotoURL()).into( fotoPerfilActivity );
-        }
-
-        /** LOG PARA CHECAGEM DE DADOS **/
-        Log.i("dadosObtidos",
-                "ID: " + usuario.getId() +
-                        " Nome: " + usuario.getNome() +
-                        " E-mail: " + usuario.getEmail() +
-                        " Foto URL: " + usuario.getFotoURL() +
-                        " Tipo de Perfil: " + usuario.getTipoPerfil()
-        );
-
-
+//        receberDadosDoUsuario( intentLogin );
 
     }
 
@@ -235,4 +221,93 @@ public class MainActivity extends AppCompatActivity
     }
     /**-----------------------------------------------------------------------------------------**/
 
+    /** RECEBE OS DADOS DO USUARIO E CONFIGURA O PERFIL **/
+
+//    private void receberDadosDoUsuario(Intent intentUsuario){
+//
+//        usuario.setIdUsuario( intentUsuario.getStringExtra("id") );
+//        usuario.setNome( intentUsuario.getStringExtra("nome") );
+//        usuario.setEmail( intentUsuario.getStringExtra("email") );
+//        usuario.setFotoURL( intentUsuario.getStringExtra("fotoURL") );
+//        usuario.setTipoPerfil( intentUsuario.getStringExtra("tipoPerfil") );
+//
+////        salvaDadosNoFirebase( usuario );
+//
+//    }
+
+//    private void salvaDadosNoFirebase (Usuario usuarioExterno){
+//
+//        dadosFirebase = ConfiguracaoFirebase.obterFirebase().child("usuarios").child( usuarioExterno.getIdUsuario() );
+//        dadosFirebase.child("nome").setValue( usuarioExterno.getNome() );
+//        dadosFirebase.child("email").setValue( usuarioExterno.getEmail() );
+//        dadosFirebase.child("FotoURL").setValue( usuarioExterno.getFotoURL() );
+//        dadosFirebase.child("tipoPerfil").setValue( usuarioExterno.getTipoPerfil() );
+//
+//        carregarPerfil( usuarioExterno );
+//
+//    }
+
+    private void carregarPerfil(DatabaseReference databaseReference){
+
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                Usuario usuario = new Usuario();
+
+                String id = (String) dataSnapshot.child("idUsuario").getValue();
+                String nome = (String) dataSnapshot.child("nome").getValue();
+                String email = (String) dataSnapshot.child("email").getValue();
+                String foto = (String) dataSnapshot.child("fotoURL").getValue();
+                String tipoPerfil = (String) dataSnapshot.child("tipoPerfil").getValue();
+
+
+                Toast.makeText(getBaseContext(), "Nome: " + nome, Toast.LENGTH_SHORT).show();
+                Log.i("testeFirebase","ID: " + id );
+                Log.i("testeFirebase","Nome: " + nome );
+                Log.i("testeFirebase","Email: " + email );
+                Log.i("testeFirebase","Foto: " + foto );
+                Log.i("testeFirebase","Perfil: " + tipoPerfil );
+
+
+                //ATRIBUINDO OS DADOS AOS TEXT VIEWs
+                nomePerfilActivity.setText( nome );
+                emailPerfilActivity.setText( email );
+                tipoContaActivity.setText( tipoPerfil );
+
+                //TRABALHA A IMAGEM PARA EXIBIR A FOTO DO PERFIL
+                RequestOptions requestOptions = new RequestOptions();
+                requestOptions.dontAnimate();
+
+                Glide.with( getBaseContext() ).load(foto).into( fotoPerfilActivity );
+
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+//        //ATRIBUINDO OS DADOS AOS TEXT VIEWs
+//        nomePerfilActivity.setText( usuarioPerfil.getNome() );
+//        emailPerfilActivity.setText( usuarioPerfil.getEmail() );
+//        tipoContaActivity.setText( usuarioPerfil.getTipoPerfil() );
+//
+//        //TRABALHA A IMAGEM PARA EXIBIR A FOTO DO PERFIL
+//        RequestOptions requestOptions = new RequestOptions();
+//        requestOptions.dontAnimate();
+//
+//        Glide.with( getBaseContext() ).load(usuarioPerfil.getFotoURL()).into( fotoPerfilActivity );
+
+    }
+
+    @Override
+    protected void onStart() {
+
+        super.onStart();
+    }
 }

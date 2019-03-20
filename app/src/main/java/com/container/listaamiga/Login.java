@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.container.listaamiga.Classes.Usuario;
+import com.container.listaamiga.config.ConfiguracaoFirebase;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
@@ -49,6 +50,10 @@ import com.google.firebase.auth.FirebaseAuthUserCollisionException;
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.internal.api.FirebaseNoSignedInUserException;
 
 import org.json.JSONException;
@@ -71,16 +76,23 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
     private GoogleApiClient mGoogleApiClient;
 
-    private LoginButton btnLoginFacebook;
+    private GoogleSignInAccount contaGoogle;
+
+//    private LoginButton btnLoginFacebook;
     private CallbackManager  callbackManager;
 
     private FirebaseAuth firebaseAuth;
+
+    private DatabaseReference referenciaFirebase;
+
+    private ValueEventListener valueEventListener;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
 
         /** VERIFICA SE HÁ USUÁRIO LOGADO **/
         verificaUsuarioLogado();
@@ -270,8 +282,6 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
                     usuarioEmail.setSenha( edtSenha.getText().toString() );
                     usuarioEmail.setTipoPerfil("email");
 
-//                    Log.i("testeLogin", "Login: " + login + " - Senha: " + senha );
-
                     loginUsuario( usuarioEmail );
 
                 } catch (Exception e){
@@ -281,10 +291,10 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
     }
 
     //AUTENTICACAO DO USUARIO AO FIREBASE
-    private void loginUsuario(final Usuario usuarioRecebido){
+    private void loginUsuario(final Usuario usuarioRecebidoEmail){
 
-        String loginInterno = usuarioRecebido.getEmail();
-        String senhaInterna = usuarioRecebido.getSenha();
+        String loginInterno = usuarioRecebidoEmail.getEmail();
+        String senhaInterna = usuarioRecebidoEmail.getSenha();
 
         Log.i("testeLogin", "Usuario: " + loginInterno + " - Senha: " + senhaInterna);
 //        String loginInterno = "teste@teste.com";
@@ -319,8 +329,14 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
                 } else {
 
                     Toast.makeText(Login.this, "Usuário logado com sucesso.", Toast.LENGTH_LONG).show();
+                    FirebaseUser usuarioFirebaseEmail = task.getResult().getUser();
 
-                    abrirMainActivity( usuarioRecebido );
+
+                    usuarioRecebidoEmail.setIdUsuario( usuarioFirebaseEmail.getUid() );
+
+                    /** SALVA OS DADOS DO USUÁRIO E ABRE A MAIN ACTIVITY **/
+                    usuarioRecebidoEmail.salvarUsuario();
+                    abrirMainActivity( );
 
                 }
 
@@ -332,7 +348,7 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
     /** LOGAR CONTA GOOGLE **/
     private void logarContaGoogle(){
 
-        GoogleSignInAccount contaGoogle = GoogleSignIn.getLastSignedInAccount(this);
+        contaGoogle = GoogleSignIn.getLastSignedInAccount(this);
 
         if ( contaGoogle == null ){
 
@@ -351,10 +367,10 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
     }
 
     /** ADICIONANDO CONTAS EXTERNAS AO FIREBASE VINCULANDO O USUÁRIO **/
-    private void autenticarFirebaseComGoogle(final GoogleSignInAccount contaGoogle){
-        Log.i( "IDFirebase","firebaseAuthWithGoogle:" + contaGoogle.getId());
+    private void autenticarFirebaseComGoogle(final GoogleSignInAccount contaGoogleExterna){
+        Log.i( "IDFirebase","firebaseAuthWithGoogle:" + contaGoogleExterna.getId());
 
-        AuthCredential credenciais = GoogleAuthProvider.getCredential(contaGoogle.getIdToken(), null);
+        AuthCredential credenciais = GoogleAuthProvider.getCredential(contaGoogleExterna.getIdToken(), null);
         firebaseAuth.signInWithCredential(credenciais)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
@@ -362,7 +378,14 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
                         if (task.isSuccessful()){
 
-                            obterDadosContaGoogle( contaGoogle );
+                            FirebaseUser usuarioFirebaseGoogle = task.getResult().getUser();
+                            Usuario usuarioGoogle = new Usuario();
+
+                            usuarioGoogle.setIdUsuario( usuarioFirebaseGoogle.getUid() );
+                            Log.i("testeDadosGoogle", "ID SALVO: "+ usuarioGoogle.getIdUsuario() );
+//                            usuarioGoogle.salvarUsuario();
+
+                            obterDadosContaGoogle( contaGoogleExterna, usuarioGoogle );
 
                         } else {
                             Toast.makeText(Login.this, "Erro ao logar o usuário pelo Google", Toast.LENGTH_LONG).show();
@@ -372,17 +395,15 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
                 });
     }
 
-    private void obterDadosContaGoogle(GoogleSignInAccount contaGoogle){
+    private void obterDadosContaGoogle(GoogleSignInAccount contaGoogle, Usuario usuarioGoogleExterno){
 
-        Usuario usuarioGoogle = new Usuario();
+        usuarioGoogleExterno.setNome( contaGoogle.getDisplayName() );
+        usuarioGoogleExterno.setEmail( contaGoogle.getEmail() );
+        usuarioGoogleExterno.setFotoURL( contaGoogle.getPhotoUrl().toString() );
+        usuarioGoogleExterno.setTipoPerfil( "google" );
 
-        usuarioGoogle.setNome( contaGoogle.getDisplayName() );
-        usuarioGoogle.setEmail( contaGoogle.getEmail() );
-        usuarioGoogle.setId( contaGoogle.getId() );
-        usuarioGoogle.setFotoURL( contaGoogle.getPhotoUrl().toString() );
-        usuarioGoogle.setTipoPerfil( "google" );
-
-        abrirMainActivity( usuarioGoogle );
+        usuarioGoogleExterno.salvarUsuario();
+        abrirMainActivity(  );
 
     }
 
@@ -404,7 +425,13 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
 
-                            obterDadosContaFacebook( token );
+                            FirebaseUser usuarioFirebaseFace = task.getResult().getUser();
+                            Usuario usuarioFacebook = new Usuario();
+
+                            usuarioFacebook.setIdUsuario( usuarioFirebaseFace.getUid() );
+//                            usuarioFacebook.salvarUsuario();
+
+                            obterDadosContaFacebook( token, usuarioFacebook);
                             Toast.makeText(Login.this, "Logado com sucesso pelo facebook.", Toast.LENGTH_LONG).show();
 
                         } else {
@@ -416,9 +443,9 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
                 });
     }
 
-    private void obterDadosContaFacebook(AccessToken accessToken){
+    private void obterDadosContaFacebook(AccessToken accessToken, Usuario usuarioFaceExterno){
 
-        final Usuario usuarioFacebook = new Usuario();
+        final Usuario usuarioFacebook = usuarioFaceExterno;
 
         GraphRequest request = GraphRequest.newMeRequest(accessToken, new GraphRequest.GraphJSONObjectCallback() {
             @Override
@@ -426,19 +453,20 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
                 try{
 
-                    String id = object.getString("id");
+                    String idPerfilFacebook = object.getString("id");
                     String primeiroNome = object.getString("first_name");
                     String ultimoNome = object.getString("last_name");
                     String email = object.getString("email");
-                    String fotoURL = "https://graph.facebook.com/" + id + "/picture?type=normal";
+                    String fotoURL = "https://graph.facebook.com/" + idPerfilFacebook + "/picture?type=normal";
 
-                    usuarioFacebook.setId( id );
+//                    usuarioFacebook.setIdUsuario( id );
                     usuarioFacebook.setNome( primeiroNome + " "+ ultimoNome );
                     usuarioFacebook.setEmail( email );
                     usuarioFacebook.setFotoURL( fotoURL );
                     usuarioFacebook.setTipoPerfil("facebook");
 
-                    abrirMainActivity( usuarioFacebook );
+                    usuarioFacebook.salvarUsuario();
+                    abrirMainActivity( );
 
                 } catch (JSONException e){
 
@@ -464,17 +492,24 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
         final Usuario usuarioAnonimo = new Usuario();
 
-        usuarioAnonimo.setNome("");
-        usuarioAnonimo.setEmail("Usuário sem e-mail");
-        usuarioAnonimo.setTipoPerfil("Anônimo");
-
         firebaseAuth.signInAnonymously()
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
 
-                            abrirMainActivity( usuarioAnonimo );
+
+                            FirebaseUser usuarioFirebaseFace = task.getResult().getUser();
+
+                            usuarioAnonimo.setIdUsuario( usuarioFirebaseFace.getUid() );
+//                            usuarioAnonimo.salvarUsuario();
+
+                            usuarioAnonimo.setNome("");
+                            usuarioAnonimo.setEmail("Usuário sem e-mail");
+                            usuarioAnonimo.setTipoPerfil("Anônimo");
+
+                            usuarioAnonimo.salvarUsuario();
+                            abrirMainActivity( );
 
                         } else {
 
@@ -488,39 +523,31 @@ public class Login extends AppCompatActivity implements View.OnClickListener{
 
     }
 
-
     /** MÉTODO QUE ABRE A TELA PRINCIPAL **/
-    private void abrirMainActivity(Usuario usuarioRecebido){
+    private void abrirMainActivity(){
 
-        Intent intentPerfilLogado = new Intent(this, MainActivity.class);
-
-        intentPerfilLogado.putExtra("id", usuarioRecebido.getId() );
-        intentPerfilLogado.putExtra("nome", usuarioRecebido.getNome() );
-        intentPerfilLogado.putExtra("email", usuarioRecebido.getEmail() );
-        intentPerfilLogado.putExtra("fotoURL", usuarioRecebido.getFotoURL() );
-        intentPerfilLogado.putExtra("tipoPerfil", usuarioRecebido.getTipoPerfil() );
-
-        startActivity( intentPerfilLogado );
+        startActivity( new Intent(getBaseContext(), MainActivity.class) );
 
         finish();
-
     }
 
     /** MÉTODO QUE VERIFICA SE HÁ USUÁRIOS LOGADOS **/
     private void verificaUsuarioLogado(){
 
-//        contaGoogle = GoogleSignIn.getLastSignedInAccount(this);
-//        firebaseAuth = FirebaseAuth.getInstance();
-//
-//        if ((firebaseAuth.getCurrentUser() != null) || (contaGoogle != null)){
-//            abrirMainActivity( 5 );
-//        }
+        //OBTEM A COMUNICACAO DO APP COM O BD FIREBASE
+        referenciaFirebase = ConfiguracaoFirebase.obterFirebase();
+
+        firebaseAuth = FirebaseAuth.getInstance();
+
+        if (( firebaseAuth.getCurrentUser() != null )){
+
+            abrirMainActivity( );
+        }
     }
 
     /** CONSTRUTOR **/
     public Login() {
 
     }
-
 
 }

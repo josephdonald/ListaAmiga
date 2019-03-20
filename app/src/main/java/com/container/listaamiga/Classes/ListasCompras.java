@@ -2,7 +2,7 @@ package com.container.listaamiga.Classes;
 
 import java.util.Date;
 
-public class ListaProdutos {
+public class ListasCompras {
 
 
     private int idLista;
@@ -13,7 +13,7 @@ public class ListaProdutos {
     private Date dataCompra;
 
 
-    public ListaProdutos() {
+    public ListasCompras() {
 
     }
 
