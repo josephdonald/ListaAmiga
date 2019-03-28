@@ -22,12 +22,12 @@
             tools:replace="android:value"
             />
 
-        <activity android:name=".RedefinirSenha"></activity>
+        <activity android:name=".activitys.RedefinirSenha"></activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".activitys.MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".Login" android:windowSoftInputMode="stateHidden">
+        <activity android:name=".activitys.Login" android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"
                     />
@@ -37,7 +37,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivityDefault" />
-        <activity android:name=".CadastroUsuario" />
+        <activity android:name=".activitys.CadastroUsuario" />
     </application>
 
 </manifest>

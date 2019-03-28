@@ -11,6 +11,7 @@ public class ListasCompras {
     private float totalItensLista;
     private float precoTotalLista;
     private Date dataCompra;
+    private boolean finalizada;
 
 
     public ListasCompras() {
@@ -63,5 +64,13 @@ public class ListasCompras {
 
     public void setDataCompra(Date dataCompra) {
         this.dataCompra = dataCompra;
+    }
+
+    public boolean isFinalizada() {
+        return finalizada;
+    }
+
+    public void setFinalizada(boolean finalizada) {
+        this.finalizada = finalizada;
     }
 }

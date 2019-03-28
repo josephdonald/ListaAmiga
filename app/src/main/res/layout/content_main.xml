@@ -6,53 +6,129 @@
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     android:background="@drawable/degrade_tela_fundo"
-    tools:context=".MainActivity"
+    tools:context=".activitys.MainActivity"
     tools:showIn="@layout/app_bar_main"
     >
 
     <FrameLayout
         android:id="@+id/conteudo_fragment"
         android:layout_width="match_parent"
-        android:layout_height="570dp"
-        android:layout_marginTop="8dp"
+        android:layout_height="match_parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <ListView
-            android:id="@+id/list_listas_compras"
+        <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            >
+            android:layout_height="match_parent">
 
-        </ListView>
+            <ImageView
+                android:id="@+id/id_cad_listas"
+                android:layout_width="100dp"
+                android:layout_height="117dp"
+                android:layout_marginStart="60dp"
+                android:layout_marginLeft="60dp"
+                android:layout_marginTop="20dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_content_paste_white_24dp" />
+
+            <ImageView
+                android:id="@+id/id_cad_categ_prod"
+                android:layout_width="100dp"
+                android:layout_height="117dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/id_cad_listas"
+                app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_class_white_24dp" />
+
+            <ImageView
+                android:id="@+id/id_estatisticas"
+                android:layout_width="100dp"
+                android:layout_height="117dp"
+                android:layout_marginStart="60dp"
+                android:layout_marginLeft="60dp"
+                android:layout_marginTop="70dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/id_cad_listas"
+                app:srcCompat="@drawable/ic_show_chart_black_24dp" />
+
+            <ImageView
+                android:id="@+id/id_contatos"
+                android:layout_width="100dp"
+                android:layout_height="117dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="70dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/id_estatisticas"
+                app:layout_constraintTop_toBottomOf="@+id/id_cad_categ_prod"
+                app:srcCompat="@drawable/ic_contact_mail_white_24dp" />
+
+            <TextView
+                android:id="@+id/textView11"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="50dp"
+                android:layout_marginLeft="50dp"
+                android:layout_marginTop="8dp"
+                android:text="Listas cadastradas"
+                android:textColor="@color/texto_branco"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/id_cad_listas" />
+
+            <TextView
+                android:id="@+id/textView12"
+                android:layout_width="wrap_content"
+                android:layout_height="18dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:text="Categorias e produtos"
+                android:textColor="@color/texto_branco"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/textView11"
+                app:layout_constraintTop_toBottomOf="@+id/id_cad_categ_prod" />
+
+            <TextView
+                android:id="@+id/textView13"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="75dp"
+                android:layout_marginLeft="75dp"
+                android:layout_marginTop="8dp"
+                android:text="Estatísticas"
+                android:textColor="@color/texto_branco"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/id_estatisticas" />
+
+            <TextView
+                android:id="@+id/textView14"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:text="Contatos amigos"
+                android:textColor="@color/texto_branco"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.576"
+                app:layout_constraintStart_toEndOf="@+id/textView13"
+                app:layout_constraintTop_toBottomOf="@+id/id_contatos" />
+        </android.support.constraint.ConstraintLayout>
+
 
     </FrameLayout>
-
-    <android.support.constraint.ConstraintLayout
-        android:id="@+id/id_adsense"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="@android:color/holo_green_dark"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/conteudo_fragment"
-        app:layout_constraintVertical_bias="0.0">
-
-        <TextView
-            android:id="@+id/textView10"
-            android:layout_width="wrap_content"
-            android:layout_height="27dp"
-            android:layout_marginTop="38dp"
-            android:layout_marginBottom="32dp"
-            android:text="ADSENSE"
-            android:textSize="20sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0" />
-    </android.support.constraint.ConstraintLayout>
 
 </android.support.constraint.ConstraintLayout>

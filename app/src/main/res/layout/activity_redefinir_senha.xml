@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="15dp"
-    tools:context=".RedefinirSenha">
+    tools:context=".activitys.RedefinirSenha">
 
     <TextView
         android:id="@+id/textView2"
