@@ -12,6 +12,7 @@ public class ListasCompras {
     private float precoTotalLista;
     private Date dataCompra;
     private boolean finalizada;
+    private float limiteValorTotal;
 
 
     public ListasCompras() {
@@ -72,5 +73,13 @@ public class ListasCompras {
 
     public void setFinalizada(boolean finalizada) {
         this.finalizada = finalizada;
+    }
+
+    public float getLimiteValorTotal() {
+        return limiteValorTotal;
+    }
+
+    public void setLimiteValorTotal(float limiteValorTotal) {
+        this.limiteValorTotal = limiteValorTotal;
     }
 }

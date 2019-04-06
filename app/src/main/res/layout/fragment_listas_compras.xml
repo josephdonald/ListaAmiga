@@ -19,7 +19,7 @@
             <android.support.constraint.ConstraintLayout
                 android:id="@+id/content_listas"
                 android:layout_width="match_parent"
-                android:layout_height="637dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:background="@color/colorPrimary"
                 android:padding="5dp"
@@ -30,7 +30,7 @@
                 <ListView
                     android:id="@+id/list_listas_compras"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="576dp"
                     android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp"
                     android:background="@android:color/white"

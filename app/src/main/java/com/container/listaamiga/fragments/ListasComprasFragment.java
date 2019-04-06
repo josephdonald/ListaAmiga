@@ -1,6 +1,7 @@
 package com.container.listaamiga.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -15,6 +16,7 @@ import android.widget.Toast;
 
 import com.container.listaamiga.Classes.ListasCompras;
 import com.container.listaamiga.R;
+import com.container.listaamiga.activitys.CadastroListaCompras;
 import com.container.listaamiga.adapter.ListasComprasPrincipalAdapter;
 import com.container.listaamiga.config.ConfiguracaoFirebase;
 import com.google.firebase.database.DataSnapshot;
@@ -55,6 +57,9 @@ public class ListasComprasFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Toast.makeText(getContext(), "CLICK ATIVADO!!", Toast.LENGTH_SHORT).show();
+
+                startActivity(new Intent(getContext(), CadastroListaCompras.class));
+
             }
         });
 
