@@ -18,25 +18,25 @@ import java.util.List;
 
 public class ListasComprasPrincipalAdapter extends BaseAdapter {
 
-    private Context context;
-    private List<ListasCompras> listasCompras;
+    private Context contextInterno;
+    private List<ListasCompras> listasComprasInterno;
 
 
     public ListasComprasPrincipalAdapter( Context contextExterno, List<ListasCompras> listasComprasExterna) {
 //        super(contextExterno, listasComprasExterna);
 
-        this.listasCompras = listasComprasExterna;
-        this.context = contextExterno;
+        this.contextInterno = contextExterno;
+        this.listasComprasInterno = listasComprasExterna;
     }
 
     @Override
     public int getCount() {
-        return listasCompras.size();
+        return listasComprasInterno.size();
     }
 
     @Override
     public ListasCompras getItem(int position) {
-        return listasCompras.get( position );
+        return listasComprasInterno.get( position );
     }
 
     @Override
@@ -50,29 +50,55 @@ public class ListasComprasPrincipalAdapter extends BaseAdapter {
 
         View view = null;
 
-        //Verifica se a lista está vazia
         if (convertView == null){
 
-            // inicializar objeto para montagem da view
-            LayoutInflater inflater = ((Activity) context).getLayoutInflater();
+                    if (listasComprasInterno != null){
 
-            // Monta view a partir do xml
-            view = inflater.inflate(R.layout.item_listas_compras, null);
-        } else {
-            view = convertView;
-        }
+                        // inicializar objeto para montagem da view
+                        LayoutInflater inflater = (LayoutInflater) contextInterno.getSystemService(contextInterno.LAYOUT_INFLATER_SERVICE);
 
-        ListasCompras listasCompra= getItem( position );
+                        // Monta view a partir do xml
+                        view = inflater.inflate(R.layout.item_listas_compras,parent, false);
 
-        TextView itemId = view.findViewById(R.id.item_id_lista);
-        TextView itemNomeLista = view.findViewById(R.id.item_nome_lista);
-        TextView itemQuantItensLista = view.findViewById(R.id.item_quant_itens_lista);
+                        TextView itemId = view.findViewById(R.id.item_id_lista);
+                        TextView itemNomeLista = view.findViewById(R.id.item_nome_lista);
+                        TextView itemQuantItensTotalLista = view.findViewById(R.id.item_quant_itens_lista);
 
-        itemId.setText( "ID LISTA ");
-        itemNomeLista.setText("NOME LISTA");
-        itemQuantItensLista.setText("QUANTIDADE DE ITENS");
+                        ListasCompras listasCompras = listasComprasInterno.get( position );
+                        itemId.setText( listasCompras.getIdLista() );
+                        itemNomeLista.setText( listasCompras.getNomeLista() );
+                        itemQuantItensTotalLista.setText( String.valueOf(listasCompras.getQuantItensTotal() ));
+
+                    }
+
+                } else {
+                view = convertView;
+                }
 
 
         return view;
     }
 }
+
+
+////Verifica se a lista está vazia
+//        if (convertView == null){
+//
+//                // inicializar objeto para montagem da view
+//                LayoutInflater inflater = ((Activity) contextInterno).getLayoutInflater();
+//
+//                // Monta view a partir do xml
+//                view = inflater.inflate(R.layout.item_listas_compras, null);
+//                } else {
+//                view = convertView;
+//                }
+//
+//final ListasCompras listasCompra= getItem( position );
+//
+//        TextView itemId = view.findViewById(R.id.item_id_lista);
+//        TextView itemNomeLista = view.findViewById(R.id.item_nome_lista);
+//        TextView itemQuantItensLista = view.findViewById(R.id.item_quant_itens_lista);
+//
+//        itemId.setText( "ID LISTA ");
+//        itemNomeLista.setText("NOME LISTA");
+//        itemQuantItensLista.setText("QUANTIDADE DE ITENS");

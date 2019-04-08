@@ -19,6 +19,7 @@ import com.container.listaamiga.R;
 import com.container.listaamiga.activitys.CadastroListaCompras;
 import com.container.listaamiga.adapter.ListasComprasPrincipalAdapter;
 import com.container.listaamiga.config.ConfiguracaoFirebase;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -29,11 +30,15 @@ import java.util.List;
 
 public class ListasComprasFragment extends Fragment {
 
-    private ListView viewListCompras;
-    private ArrayList<ListasCompras> listasComprasMain;
+    private ListView listViewCompras;
     private ListasComprasPrincipalAdapter listasComprasAdapter;
-    private DatabaseReference dadosListasComprasFirebase;
     private ValueEventListener valueEventListenerCompras;
+
+    private ArrayList<ListasCompras> listasComprasMain;
+
+    /** VARIAVEIS FIREBASE **/
+    private DatabaseReference dadosListasComprasFirebase;
+    private FirebaseAuth contaUsuario = FirebaseAuth.getInstance();
 
     /** BOTAO FLOAT **/
     private FloatingActionButton buttonFloatListas;
@@ -63,31 +68,31 @@ public class ListasComprasFragment extends Fragment {
             }
         });
 
-
         /** ASSOCIANDO A LIST VIEW AO XML DO LAYOUT **/
-        viewListCompras = view.findViewById(R.id.list_listas_compras);
+        listViewCompras = view.findViewById(R.id.list_listas_compras);
 
         listasComprasMain = new ArrayList<>();
 
         /** CRIANDO A LISTA DE COMPRAS PRINCIPAL **/
 //        listasComprasMain = new ArrayList<ListasCompras>();
-        listasComprasAdapter = new ListasComprasPrincipalAdapter(getContext(), listasComprasMain);
-        viewListCompras.setAdapter( listasComprasAdapter );
+        listasComprasAdapter = new ListasComprasPrincipalAdapter(getActivity(), listasComprasMain);
+        listViewCompras.setAdapter( listasComprasAdapter );
 
         dadosListasComprasFirebase = ConfiguracaoFirebase.obterFirebase()
-                .child("idUsuario")
-                .child("nome");
+                .child("usuarios")
+                .child( contaUsuario.getUid() )
+                .child("listasCadastradas");
 
         valueEventListenerCompras = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
-                ListasCompras listasCompras = new ListasCompras();
+//                ListasCompras listasCompras = new ListasCompras();
 
                 listasComprasMain.clear();
 
                 for (DataSnapshot dados: dataSnapshot.getChildren() ){
-                    listasCompras = dados.getValue( ListasCompras.class );
+                    ListasCompras listasCompras = dados.getValue( ListasCompras.class );
                     listasComprasMain.add( listasCompras );
 
                 }

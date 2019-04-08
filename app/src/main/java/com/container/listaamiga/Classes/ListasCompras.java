@@ -1,16 +1,14 @@
 package com.container.listaamiga.Classes;
 
-import java.util.Date;
-
 public class ListasCompras {
 
 
-    private int idLista;
+    private String idLista;
     private String nomeLista;
-    private int quantItensLista;
-    private float totalItensLista;
+    private int quantItensSelecionado;
+    private float quantItensTotal;
     private float precoTotalLista;
-    private Date dataCompra;
+    private String dataCompra;
     private boolean finalizada;
     private float limiteValorTotal;
 
@@ -19,11 +17,11 @@ public class ListasCompras {
 
     }
 
-    public int getIdLista() {
+    public String getIdLista() {
         return idLista;
     }
 
-    public void setIdLista(int idLista) {
+    public void setIdLista(String idLista) {
         this.idLista = idLista;
     }
 
@@ -35,20 +33,20 @@ public class ListasCompras {
         this.nomeLista = nomeLista;
     }
 
-    public int getQuantItensLista() {
-        return quantItensLista;
+    public int getQuantItensSelecionado() {
+        return quantItensSelecionado;
     }
 
-    public void setQuantItensLista(int quantItensLista) {
-        this.quantItensLista = quantItensLista;
+    public void setQuantItensSelecionado(int quantItensSelecionado) {
+        this.quantItensSelecionado = quantItensSelecionado;
     }
 
-    public float getTotalItensLista() {
-        return totalItensLista;
+    public float getQuantItensTotal() {
+        return quantItensTotal;
     }
 
-    public void setTotalItensLista(float totalItensLista) {
-        this.totalItensLista = totalItensLista;
+    public void setQuantItensTotal(float quantItensTotal) {
+        this.quantItensTotal = quantItensTotal;
     }
 
     public float getPrecoTotalLista() {
@@ -59,11 +57,11 @@ public class ListasCompras {
         this.precoTotalLista = precoTotalLista;
     }
 
-    public Date getDataCompra() {
+    public String getDataCompra() {
         return dataCompra;
     }
 
-    public void setDataCompra(Date dataCompra) {
+    public void setDataCompra(String dataCompra) {
         this.dataCompra = dataCompra;
     }
 
