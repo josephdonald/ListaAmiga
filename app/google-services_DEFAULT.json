@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1043213507499",
+    "firebase_url": "https://listaamiga-bb3e5.firebaseio.com",
+    "project_id": "listaamiga-bb3e5",
+    "storage_bucket": "listaamiga-bb3e5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1043213507499:android:c5d97120ffb4875a",
+        "android_client_info": {
+          "package_name": "com.container.listaamiga"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1043213507499-no1jeht4qc64hnj4idq8g7tljdi8av1s.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.container.listaamiga",
+            "certificate_hash": "ca8b0c083920ae6da88421bd86f243ec036e59b3"
+          }
+        },
+        {
+          "client_id": "1043213507499-hvglmjgepqqomnfefenm316qdtp51l9v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDYEpT9czoKfAkoPNH4YN4lmlXR2OM7lyY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1043213507499-hvglmjgepqqomnfefenm316qdtp51l9v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

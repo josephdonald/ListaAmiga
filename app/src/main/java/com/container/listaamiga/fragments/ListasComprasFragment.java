@@ -89,6 +89,7 @@ public class ListasComprasFragment extends Fragment {
 
 //                ListasCompras listasCompras = new ListasCompras();
 
+
                 listasComprasMain.clear();
 
                 for (DataSnapshot dados: dataSnapshot.getChildren() ){
